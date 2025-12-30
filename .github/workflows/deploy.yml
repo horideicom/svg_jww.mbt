@@ -21,10 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup MoonBit
-        uses: moonbit/setup-moonbit@v1
-        with:
-          version: latest
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://moonbitlang.github.io/install.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Cache Mooncakes dependencies
         uses: actions/cache@v4
