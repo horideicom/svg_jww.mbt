@@ -31,10 +31,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --filter examples
+        run: cd examples && pnpm install
 
       - name: Build examples
-        run: pnpm --filter examples run build
+        run: cd examples && pnpm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
