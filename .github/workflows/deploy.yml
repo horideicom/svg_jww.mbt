@@ -21,39 +21,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install MoonBit
-        run: |
-          curl -fsSL https://moonbitlang.github.io/install.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: Cache Mooncakes dependencies
-        uses: actions/cache@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          path: .mooncakes
-          key: ${{ runner.os }}-mooncakes-${{ hashFiles('moon.mod.json') }}
-          restore-keys: |
-            ${{ runner.os }}-mooncakes-
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: moon install
+        run: pnpm install --filter examples
 
-      - name: Build for JavaScript
-        run: moon build --target js
-
-      - name: Prepare deployment
-        run: |
-          mkdir -p dist
-          # Copy generated JS files
-          cp -r target/js/release/build/* dist/
-          # Copy index.html
-          cp index.html dist/
-          # Update script path in index.html for GitHub Pages
-          sed -i 's|/target/js/release/build/|./|g' dist/index.html
+      - name: Build examples
+        run: pnpm --filter examples run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./examples/dist
 
   deploy:
     environment:

@@ -12,6 +12,7 @@
     "js": {
       "exports": [
         "render_app",
+        "render_app_html",
         "serialize_state"
       ],
       "format": "esm"

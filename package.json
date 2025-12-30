@@ -1,22 +1,50 @@
 {
-  "name": "svg-jww-viewer",
+  "name": "svg-jww-viewer-mbt",
   "version": "0.1.0",
-  "description": "SVG renderer for JWW files (Jw_cad format)",
-  "type": "module",
-  "scripts": {
-    "build": "moon build --target js",
-    "dev": "moon build --target js --watch",
-    "serve": "npx serve dist -l 8080",
-    "preview": "npm run build && npm run serve"
+  "description": "SVG JWW file viewer powered by MoonBit",
+  "author": "f12o",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/f4ah6o/svg_jww.mbt.git"
   },
   "keywords": [
     "jww",
     "cad",
     "svg",
-    "jw_cad"
+    "jw_cad",
+    "viewer",
+    "moonbit",
+    "webassembly"
   ],
-  "license": "AGPL-3.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf target dist",
+    "build:moon": "moon build --target js",
+    "build:bundle": "rolldown -c rolldown.config.mjs",
+    "build:types": "mkdir -p dist && cp target/js/release/build/svg_jww_ui/svg_jww_ui.d.ts dist/index.d.ts && cp target/js/release/build/svg_jww_ui/moonbit.d.ts dist/moonbit.d.ts",
+    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:bundle && pnpm run build:types",
+    "prepublishOnly": "pnpm run build",
+    "set-version": "node scripts/sync-version.js && git add package.json moon.mod.json examples/package.json",
+    "release": "node scripts/release.js"
+  },
+  "packageManager": "pnpm@10.26.2",
   "devDependencies": {
-    "serve": "^14.2.0"
+    "rolldown": "^1.0.0-beta.57",
+    "typescript": "^5.9.3"
   }
 }
