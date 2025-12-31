@@ -435,14 +435,60 @@ function renderEntity(entity, coordTransform) {
     }
 
     case 'Text': {
-      const textContent = (value.content || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const textContent = value.content || '';
       const x = value.start_x;
-      const y = coordTransform.transformY(value.start_y);
+      const baseY = value.start_y;
+      const y = coordTransform.transformY(baseY);
       const fontSize = Math.abs(value.size_y || 10);
+      const sizeX = value.size_x || fontSize;
       const angle = value.angle || 0;
       const svgAngle = -angle;
+      const spacing = value.spacing || 0;
 
-      return `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif;">${textContent}</text>\n`;
+      // Calculate character width scaling
+      const charWidthScale = sizeX / fontSize;
+
+      // Calculate line height from end_y/start_y difference
+      // If end_y is available and different from start_y, use it for line spacing
+      let lineHeight = fontSize * 1.2; // default line-height
+      if (value.end_y !== undefined && Math.abs(value.end_y - baseY) > fontSize) {
+        // JWW stores line spacing as total height difference
+        lineHeight = Math.abs(value.end_y - baseY);
+      }
+
+      // Escape text content for SVG
+      const escapeHtml = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+      // Split text by newlines for multi-line rendering
+      const lines = textContent.split('\n');
+      const isMultiLine = lines.length > 1;
+
+      let svgText = '';
+
+      if (isMultiLine) {
+        // Multi-line text: render each line with dy offset
+        // SVG tspan elements with dy for line spacing
+        const tsDy = isMultiLine ? lineHeight : 0;
+
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif; letter-spacing: ${spacing}px;">`;
+        lines.forEach((line, i) => {
+          const dy = i === 0 ? '0' : tsDy;
+          svgText += `<tspan x="${x}" dy="${dy}">${escapeHtml(line)}</tspan>`;
+        });
+        svgText += `</text>\n`;
+      } else {
+        // Single line text
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" style="font-family: sans-serif; letter-spacing: ${spacing}px;`;
+        if (charWidthScale !== 1) {
+          // Adjust character width using transform scaleX (combine with rotation)
+          svgText += ` transform-box: fill-box; transform-origin: left center; transform: rotate(${svgAngle}, ${x}, ${y}) scaleX(${charWidthScale});`;
+        } else {
+          svgText += ` transform: rotate(${svgAngle}, ${x}, ${y});`;
+        }
+        svgText += `">${escapeHtml(textContent)}</text>\n`;
+      }
+
+      return svgText;
     }
 
     case 'Solid': {
