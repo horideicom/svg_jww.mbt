@@ -21,8 +21,8 @@ importers:
         specifier: ^2025.12.6
         version: 2025.12.6
       svg-jww-viewer:
-        specifier: workspace:*
-        version: link:..
+        specifier: ^2025.12.1
+        version: 2025.12.1
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -452,6 +452,9 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  svg-jww-viewer@2025.12.1:
+    resolution: {integrity: sha512-n1MLqdcxNRC97hM0ODm8O8s9lB2GK0icLJ60kaT4P4wTBHRYRyDYBJxCn7iwUGs8kpYkP6Y3629A+23d9fTPcQ==}
+
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
@@ -823,6 +826,8 @@ snapshots:
       fsevents: 2.3.3
 
   source-map-js@1.2.1: {}
+
+  svg-jww-viewer@2025.12.1: {}
 
   tinyglobby@0.2.15:
     dependencies:
