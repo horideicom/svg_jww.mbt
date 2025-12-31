@@ -1,10 +1,10 @@
-# jww-parser-mbt
+# svg-jww-viewer
 
-MoonBitで実装されたJWWファイルパーサーとDXFコンバーターです。JW_CAD形式のファイル（*.jww）をWebブラウザで表示するためのツールキットを提供します。
+MoonBitで実装されたJWWファイルビューアです。JW_CAD形式のファイル（*.jww）をWebブラウザで表示するためのツールキットを提供します。
 
 ## 特徴
 
-* **JWWファイルパーシング**: JW_CAD形式のバイナリファイルを解析
+* **JWWファイルパーシング**: JW_CAD形式のバイナリファイルを解析（[jww-parser](https://www.npmjs.com/package/jww-parser)使用）
 * **SVGレンダリング**: JWWデータをSVG形式に変換して表示
 * **インタラクティブビューア**:
   * ズームイン/アウト（マウスホイール、キーボードショートカット）
@@ -17,10 +17,13 @@ MoonBitで実装されたJWWファイルパーサーとDXFコンバーターで�
   * テキストのドラッグ移動
   * フォントサイズ調整
   * テキスト位置リセット
+  * テキスト表示のオン/オフ切り替え
 
 ## 技術スタック
 
 * **MoonBit**: メインプログラミング言語（WebAssemblyターゲット対応）
+* **Luna**: Signal-based reactive UIフレームワーク（mizchi/luna）
+* **mizchi/js**: JavaScript相互運用ライブラリ
 * **TypeScript**: 型定義ファイル
 * **Rolldown**: 高速バンドラー（ESM/CJS出力対応）
 * **Vite**: 開発用デモアプリケーション
@@ -29,7 +32,7 @@ MoonBitで実装されたJWWファイルパーサーとDXFコンバーターで�
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/f4ah6o/jww_parser.mbt.git
+git clone https://github.com/f4ah6o/svg_jww.mbt
 cd svg_jww
 
 # 依存関係のインストール
@@ -84,37 +87,45 @@ pnpm dev
 ### ライブラリとして使用
 
 ```javascript
-import { parse } from 'jww-parser-mbt';
+import { parse } from 'jww-parser';
+import { renderToSvg } from 'svg-jww-viewer';
 
 // JWWファイルをパース
 const buffer = await file.arrayBuffer();
 const uint8Array = new Uint8Array(buffer);
 const jwwData = parse(uint8Array);
 
-// パース結果を処理
-console.log(jwwData.entities);
+// SVGにレンダリング
+const svg = renderToSvg(jwwData);
 ```
 
 ## プロジェクト構造
 
 ```
 svg_jww/
-├── cmd/                   # エントリーポイント
-│   ├── browser/          # ブラウザ用
-│   └── main/             # CLI用
-├── svg_jww_ui/           # UIコンポーネント（MoonBit）
-│   ├── app.mbt           # メインアプリケーション
-│   ├── canvas.mbt        # SVGキャンバス
-│   ├── layer_panel.mbt   # レイヤーパネル
-│   └── state.mbt         # 状態管理
-├── svg_jww.mbt           # メインモジュール
-├── svg_jww_renderer.mbt  # レンダリングロジック
-├── svg_jww_types.mbt     # 型定義
-├── examples/             # デモアプリケーション
-│   ├── src/main.js       # メイン処理
-│   └── index.html        # HTMLテンプレート
-└── package/              # npmパッケージ設定
-    └── package.json
+├── cmd/                        # エントリーポイント
+│   ├── browser/main.mbt        # ブラウザ用（Luna UIベース）
+│   └── main/main.mbt           # CLI用
+├── svg_jww_ui/                 # UIコンポーネント（MoonBit + Luna）
+│   ├── app.mbt                 # メインアプリケーション
+│   ├── canvas.mbt              # SVGキャンバス
+│   ├── layer_panel.mbt         # レイヤーパネル
+│   └── state.mbt               # 状態管理（Signal）
+├── svg_jww.mbt                 # SVG要素ビルダー
+├── svg_jww_renderer.mbt        # レンダリングロジック
+├── svg_jww_types.mbt           # 型定義
+├── svg_jww_wbtest.mbt          # WebAssemblyテスト
+├── examples/                   # デモアプリケーション
+│   ├── src/main.js             # メイン処理（vanilla JS）
+│   ├── index.html              # HTMLテンプレート
+│   ├── vite.config.ts          # Vite設定
+│   └── package.json            # デモ用依存関係
+├── package/                    # npmパッケージ設定
+│   ├── package.json
+│   └── dist/                   # ビルド出力
+├── moon.mod.json               # MoonBit依存関係
+├── rolldown.config.mjs         # バンドラー設定
+└── package.json                # ルートパッケージ
 ```
 
 ## ライセンス
@@ -127,4 +138,4 @@ f12o
 
 ## リポジトリ
 
-https://github.com/f4ah6o/jww_parser.mbt.git
+https://github.com/f4ah6o/svg_jww.mbt
