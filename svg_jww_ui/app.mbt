@@ -44,12 +44,7 @@ pub fn render_app(
         [
           // Toolbar
           render_toolbar(
-            state_sig,
-            on_zoom_in,
-            on_zoom_out,
-            on_fit,
-            on_reset,
-            on_toggle_layer_panel,
+            state_sig, on_zoom_in, on_zoom_out, on_fit, on_reset, on_toggle_layer_panel,
           ),
           // Canvas area
           @luna.h(
@@ -92,10 +87,7 @@ pub fn render_app(
         ],
         [
           render_collapsible_layer_panel(
-            state_sig,
-            on_toggle_layer_visibility,
-            on_toggle_layer_lock,
-            on_select_layer,
+            state_sig, on_toggle_layer_visibility, on_toggle_layer_lock, on_select_layer,
             on_toggle_layer_panel,
           ),
           // Info panel
@@ -129,12 +121,14 @@ pub fn render_toolbar(
     ],
     [
       // Logo/Title
-      @luna.h("span", [
-        ("style", @luna.attr_static("font-weight: bold; font-size: 16px;")),
-      ], [@luna.text("JWW Viewer")]),
-      @luna.h("span", [
-        ("style", @luna.attr_static("color: #999;")),
-      ], [@luna.text("|")]),
+      @luna.h(
+        "span",
+        [("style", @luna.attr_static("font-weight: bold; font-size: 16px;"))],
+        [@luna.text("JWW Viewer")],
+      ),
+      @luna.h("span", [("style", @luna.attr_static("color: #999;"))], [
+        @luna.text("|"),
+      ]),
       // Zoom buttons
       @luna.h(
         "button",
@@ -193,9 +187,7 @@ pub fn render_toolbar(
         [@luna.text("Reset")],
       ),
       // Spacer
-      @luna.h("div", [
-        ("style", @luna.attr_static("flex: 1;")),
-      ], []),
+      @luna.h("div", [("style", @luna.attr_static("flex: 1;"))], []),
       // Info
       @luna.h(
         "span",
@@ -203,10 +195,12 @@ pub fn render_toolbar(
           ("class", @luna.attr_static("jww-toolbar-info")),
           ("style", @luna.attr_static("font-size: 12px; color: #666;")),
         ],
-        [@luna.text_dyn(fn() {
-          let s = state_sig.get()
-          "Scale: " + ((s.viewport.scale * 100.0).to_int().to_string() + "%")
-        })],
+        [
+          @luna.text_dyn(fn() {
+            let s = state_sig.get()
+            "Scale: " + ((s.viewport.scale * 100.0).to_int().to_string() + "%")
+          }),
+        ],
       ),
     ],
   )
@@ -214,80 +208,71 @@ pub fn render_toolbar(
 
 ///|
 /// Info panel showing document info
-pub fn render_info_panel(state_sig : @signal.Signal[AppState]) -> @luna.Node[Unit] {
+pub fn render_info_panel(
+  state_sig : @signal.Signal[AppState],
+) -> @luna.Node[Unit] {
   @luna.h(
     "div",
     [
       ("class", @luna.attr_static("jww-info-panel")),
-      (
-        "style",
-        @luna.attr_static(
-          "border-top: 1px solid #ccc; padding: 12px;",
-        ),
-      ),
+      ("style", @luna.attr_static("border-top: 1px solid #ccc; padding: 12px;")),
     ],
     [
-      @luna.h("h3", [
-        ("style", @luna.attr_static("margin: 0 0 8px 0; font-size: 14px;")),
-      ], [@luna.text("Document Info")]),
-      @luna.h("div", [
-        ("style", @luna.attr_static("font-size: 12px; color: #666; display: flex; flex-direction: column; gap: 4px;")),
-      ], [
-        @luna.h("div", [], [
-          @luna.text("Viewport:"),
-          @luna.text_dyn(fn() {
-            let vp = state_sig.get().viewport
-            vp.width.to_string() +
-            "x" +
-            vp.height.to_string()
-          }),
-        ]),
-        @luna.h("div", [], [
-          @luna.text("Scale:"),
-          @luna.text_dyn(fn() {
-            let vp = state_sig.get().viewport
-            (vp.scale * 100.0).to_int().to_string() + "%"
-          }),
-        ]),
-        @luna.h("div", [], [
-          @luna.text("Layers:"),
-          @luna.text_dyn(fn() {
-            let state = state_sig.get()
-            let visible = state.layers.filter(fn(l) { l.visible }).length()
-            visible.to_string() + " / " + state.layers.length().to_string()
-          }),
-        ]),
-      ]),
+      @luna.h(
+        "h3",
+        [("style", @luna.attr_static("margin: 0 0 8px 0; font-size: 14px;"))],
+        [@luna.text("Document Info")],
+      ),
+      @luna.h(
+        "div",
+        [
+          (
+            "style",
+            @luna.attr_static(
+              "font-size: 12px; color: #666; display: flex; flex-direction: column; gap: 4px;",
+            ),
+          ),
+        ],
+        [
+          @luna.h("div", [], [
+            @luna.text("Viewport:"),
+            @luna.text_dyn(fn() {
+              let vp = state_sig.get().viewport
+              vp.width.to_string() + "x" + vp.height.to_string()
+            }),
+          ]),
+          @luna.h("div", [], [
+            @luna.text("Scale:"),
+            @luna.text_dyn(fn() {
+              let vp = state_sig.get().viewport
+              (vp.scale * 100.0).to_int().to_string() + "%"
+            }),
+          ]),
+          @luna.h("div", [], [
+            @luna.text("Layers:"),
+            @luna.text_dyn(fn() {
+              let state = state_sig.get()
+              let visible = state.layers.filter(fn(l) { l.visible }).length()
+              visible.to_string() + " / " + state.layers.length().to_string()
+            }),
+          ]),
+        ],
+      ),
     ],
   )
 }
 
 ///|
 /// Render full page HTML for SSR
-pub fn render_app_html(
-  app_state : AppState,
-  svg_content : String,
-) -> String {
+pub fn render_app_html(app_state : AppState, svg_content : String) -> String {
   let state_sig = @signal.signal(app_state)
   let svg_sig = @signal.signal(svg_content)
 
   // Create noop event handler for SSR
   let noop = @luna.handler(fn(_x) { () })
-
   let vnode = render_app(
-    state_sig,
-    svg_sig,
-    noop,
-    noop,
-    noop,
-    noop,
-    noop,
-    noop,
-    noop,
-    noop,
-    noop,
+    state_sig, svg_sig, noop, noop, noop, noop, noop, noop, noop, noop, noop,
   )
-
   @render.render_to_string_with_hydration(vnode)
 }
 

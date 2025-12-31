@@ -163,9 +163,12 @@ test "render_line_basic" {
   let result = render_line(line, opts)
   let svg_str = to_string(result)
   // Y coordinates are flipped: 200-0=200, 200-100=100
-  inspect(svg_str, content=(
-    #|<line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" />
+    ),
+  )
 }
 
 ///|
@@ -182,9 +185,12 @@ test "render_arc_full_circle" {
   let opts = RenderOptions::with_size(200.0, 200.0)
   let result = render_arc(arc, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<circle cx="100" cy="100" r="50" stroke="#000000" stroke-width="1" fill="none" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<circle cx="100" cy="100" r="50" stroke="#000000" stroke-width="1" fill="none" />
+    ),
+  )
 }
 
 ///|
@@ -198,9 +204,12 @@ test "render_point" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_point(point, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<circle cx="50" cy="50" r="1" fill="#000000" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<circle cx="50" cy="50" r="1" fill="#000000" />
+    ),
+  )
 }
 
 ///|
@@ -213,9 +222,12 @@ test "render_polyline_open" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_polyline(poly, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<polyline points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<polyline points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
+    ),
+  )
 }
 
 ///|
@@ -228,9 +240,12 @@ test "render_polyline_closed" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_polyline(poly, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<polygon points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<polygon points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
+    ),
+  )
 }
 
 ///|
@@ -247,12 +262,18 @@ test "render_text_with_rotation" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_text(text, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
-  ))
-  inspect(svg_str, content=(
-    #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
+    ),
+  )
+  inspect(
+    svg_str,
+    content=(
+      #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
+    ),
+  )
 }
 
 ///|
@@ -272,12 +293,18 @@ test "render_solid_fill" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_solid(solid, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
-  ))
-  inspect(svg_str, content=(
-    #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
+    ),
+  )
+  inspect(
+    svg_str,
+    content=(
+      #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
+    ),
+  )
 }
 
 ///|
@@ -294,12 +321,18 @@ test "render_block_placeholder" {
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_block(block, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
-  ))
-  inspect(svg_str, content=(
-    #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
+    ),
+  )
+  inspect(
+    svg_str,
+    content=(
+      #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
+    ),
+  )
 }
 
 ///|
@@ -325,15 +358,24 @@ test "render_document_simple" {
   let opts = RenderOptions::with_size(200.0, 200.0)
   let result = render_document(doc, opts)
   let svg_str = to_string(result)
-  inspect(svg_str, content=(
-    #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
-  ))
-  inspect(svg_str, content=(
-    #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
-  ))
-  inspect(svg_str, content=(
-    #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
-  ))
+  inspect(
+    svg_str,
+    content=(
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+    ),
+  )
+  inspect(
+    svg_str,
+    content=(
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+    ),
+  )
+  inspect(
+    svg_str,
+    content=(
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+    ),
+  )
 }
 
 ///|

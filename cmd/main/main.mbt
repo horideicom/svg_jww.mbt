@@ -41,22 +41,40 @@ fn main {
 
   // Test 3: Group with multiple elements
   println("Test 3: Group with multiple shapes")
-  let circle1 = @lib.circle([@lib.attr("cx", "30"), @lib.attr("cy", "30"), @lib.attr("r", "20"), @lib.fill_attr("blue")])
-  let circle2 = @lib.circle([@lib.attr("cx", "70"), @lib.attr("cy", "30"), @lib.attr("r", "20"), @lib.fill_attr("green")])
-  let circle3 = @lib.circle([@lib.attr("cx", "50"), @lib.attr("cy", "70"), @lib.attr("r", "20"), @lib.fill_attr("yellow")])
+  let circle1 = @lib.circle([
+    @lib.attr("cx", "30"),
+    @lib.attr("cy", "30"),
+    @lib.attr("r", "20"),
+    @lib.fill_attr("blue"),
+  ])
+  let circle2 = @lib.circle([
+    @lib.attr("cx", "70"),
+    @lib.attr("cy", "30"),
+    @lib.attr("r", "20"),
+    @lib.fill_attr("green"),
+  ])
+  let circle3 = @lib.circle([
+    @lib.attr("cx", "50"),
+    @lib.attr("cy", "70"),
+    @lib.attr("r", "20"),
+    @lib.fill_attr("yellow"),
+  ])
   let group = @lib.g([@lib.class_attr("venn")], [circle1, circle2, circle3])
   println(@lib.to_string(group))
   println("")
 
   // Test 4: Text with rotation
   println("Test 4: Text with styling")
-  let text = @lib.text_elem([
-    @lib.attr("x", "50"),
-    @lib.attr("y", "50"),
-    @lib.attr("fill", "black"),
-    @lib.attr("font-size", "16"),
-    @lib.style_attr("transform-origin: 50px 50px; transform: rotate(45deg);"),
-  ], "Rotated Text")
+  let text = @lib.text_elem(
+    [
+      @lib.attr("x", "50"),
+      @lib.attr("y", "50"),
+      @lib.attr("fill", "black"),
+      @lib.attr("font-size", "16"),
+      @lib.style_attr("transform-origin: 50px 50px; transform: rotate(45deg);"),
+    ],
+    "Rotated Text",
+  )
   println(@lib.to_string(text))
   println("")
 
@@ -88,7 +106,13 @@ fn main {
   let x = opts.transform_x(100.0)
   let y = opts.transform_y(100.0)
   println("Original: (100, 100)")
-  println("Transformed with 800x600 canvas: (" + x.to_string() + ", " + y.to_string() + ")")
+  println(
+    "Transformed with 800x600 canvas: (" +
+    x.to_string() +
+    ", " +
+    y.to_string() +
+    ")",
+  )
   println("")
 
   // Test 8: Color conversion
@@ -107,6 +131,5 @@ fn main {
   println("  width: " + bbox2.width().to_string())
   println("  height: " + bbox2.height().to_string())
   println("")
-
   println("=== Demo Complete ===")
 }

@@ -15,13 +15,7 @@ pub struct Viewport {
 ///|
 /// Create default viewport
 pub fn Viewport::new() -> Viewport {
-  {
-    scale: 1.0,
-    offset_x: 0.0,
-    offset_y: 0.0,
-    width: 800.0,
-    height: 600.0,
-  }
+  { scale: 1.0, offset_x: 0.0, offset_y: 0.0, width: 800.0, height: 600.0 }
 }
 
 ///|
@@ -36,7 +30,7 @@ pub struct LayerState {
 ///|
 /// Create default layer state
 pub fn LayerState::new(id : Int, name : String) -> LayerState {
-  { layer_id: id, name: name, visible: true, locked: false }
+  { layer_id: id, name, visible: true, locked: false }
 }
 
 ///|
@@ -73,7 +67,7 @@ pub fn AppState::new() -> AppState {
   ]
   {
     viewport: Viewport::new(),
-    layers: layers,
+    layers,
     selection: Selection::new(),
     background_color: "#ffffff",
     show_grid: false,
@@ -103,13 +97,21 @@ pub fn Viewport::zoom_in(self : Viewport, factor : Double) -> Viewport {
 ///|
 /// Helper function for min of two doubles
 fn double_min(a : Double, b : Double) -> Double {
-  if a < b { a } else { b }
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
 /// Helper function for max of two doubles
 fn double_max(a : Double, b : Double) -> Double {
-  if a > b { a } else { b }
+  if a > b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -152,8 +154,16 @@ pub fn Viewport::fit_to(
   let padding = 20.0
   let available_width = self.width - padding * 2.0
   let available_height = self.height - padding * 2.0
-  let scale_x = if content_width > 0.0 { available_width / content_width } else { 1.0 }
-  let scale_y = if content_height > 0.0 { available_height / content_height } else { 1.0 }
+  let scale_x = if content_width > 0.0 {
+    available_width / content_width
+  } else {
+    1.0
+  }
+  let scale_y = if content_height > 0.0 {
+    available_height / content_height
+  } else {
+    1.0
+  }
   let min_scale = double_min(scale_x, scale_y)
   let new_scale = double_max(double_min(min_scale, 2.0), 0.1)
   {
@@ -168,13 +178,23 @@ pub fn Viewport::fit_to(
 ///|
 /// Toggle layer visibility
 pub fn LayerState::toggle(self : LayerState) -> LayerState {
-  { layer_id: self.layer_id, name: self.name, visible: !self.visible, locked: self.locked }
+  {
+    layer_id: self.layer_id,
+    name: self.name,
+    visible: !self.visible,
+    locked: self.locked,
+  }
 }
 
 ///|
 /// Toggle layer lock
 pub fn LayerState::toggle_lock(self : LayerState) -> LayerState {
-  { layer_id: self.layer_id, name: self.name, visible: self.visible, locked: !self.locked }
+  {
+    layer_id: self.layer_id,
+    name: self.name,
+    visible: self.visible,
+    locked: !self.locked,
+  }
 }
 
 ///|
