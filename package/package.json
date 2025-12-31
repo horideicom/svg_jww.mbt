@@ -1,19 +1,19 @@
 {
-  "name": "svg-jww-viewer",
-  "version": "2025.12.1",
-  "description": "SVG JWW file viewer powered by MoonBit",
+  "name": "jww-parser-mbt",
+  "version": "2025.12.6",
+  "description": "JWW file parser and DXF converter powered by MoonBit",
   "author": "f12o",
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/f4ah6o/svg_jww.mbt.git"
+    "url": "https://github.com/f4ah6o/jww_parser.mbt.git"
   },
   "keywords": [
     "jww",
+    "dxf",
     "cad",
-    "svg",
-    "jw_cad",
-    "viewer",
+    "parser",
+    "converter",
     "moonbit",
     "webassembly"
   ],
@@ -35,9 +35,10 @@
   "scripts": {
     "clean": "rm -rf target dist",
     "build:moon": "moon build --target js",
+    "build:patch": "node scripts/patch-js.js",
     "build:bundle": "rolldown -c rolldown.config.mjs",
-    "build:types": "mkdir -p dist && cp target/js/release/build/svg_jww_ui/svg_jww_ui.d.ts dist/index.d.ts && cp target/js/release/build/svg_jww_ui/moonbit.d.ts dist/moonbit.d.ts",
-    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:bundle && pnpm run build:types",
+    "build:types": "mkdir -p dist && cp target/js/release/build/jww_parser.d.ts dist/index.d.ts && cp target/js/release/build/moonbit.d.ts dist/moonbit.d.ts",
+    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:patch && pnpm run build:bundle && pnpm run build:types",
     "prepublishOnly": "pnpm run build",
     "set-version": "node scripts/sync-version.js && git add package.json moon.mod.json examples/package.json",
     "release": "node scripts/release.js"

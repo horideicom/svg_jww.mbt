@@ -1,6 +1,6 @@
 {
   "name": "f4ah6o/svg_jww",
-  "version": "2025.12.0",
+  "version": "2025.12.1",
   "deps": {
     "mizchi/luna": "0.3.5",
     "mizchi/js": "0.10.6"

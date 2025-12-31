@@ -116,9 +116,9 @@ async function main() {
     // Verify publish
     console.log('\n▸ Verifying npm publish...');
     await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for registry
-    const npmVersion = runCommandSilent(`npm view svg-jww-viewer-mbt version`);
+    const npmVersion = runCommandSilent(`npm view svg-jww-viewer version`);
     if (npmVersion === newVersion) {
-      console.log(`✓ Verified: svg-jww-viewer-mbt@${newVersion} is live on npm`);
+      console.log(`✓ Verified: svg-jww-viewer@${newVersion} is live on npm`);
     } else {
       console.log(`⚠ Registry shows ${npmVersion}, expected ${newVersion} (may need time to propagate)`);
     }
@@ -186,7 +186,7 @@ async function main() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('');
     console.log('Published:');
-    console.log(`  📦 npm: https://www.npmjs.com/package/svg-jww-viewer-mbt/v/${newVersion}`);
+    console.log(`  📦 npm: https://www.npmjs.com/package/svg-jww-viewer/v/${newVersion}`);
     console.log(`  🏷️  Tag: v${newVersion}`);
     console.log(`  🔗 Repo: https://github.com/f4ah6o/svg_jww.mbt`);
 
@@ -198,7 +198,7 @@ async function main() {
     console.log(`  git checkout package.json moon.mod.json examples/package.json`);
     console.log('');
     console.log('If npm publish succeeded, you may need to deprecate the version:');
-    console.log(`  npm deprecate svg-jww-viewer-mbt@${newVersion} "Released in error"`);
+    console.log(`  npm deprecate svg-jww-viewer@${newVersion} "Released in error"`);
   }
 
   rl.close();

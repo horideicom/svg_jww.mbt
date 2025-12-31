@@ -20,9 +20,9 @@ importers:
       jww-parser-mbt:
         specifier: ^2025.12.6
         version: 2025.12.6
-      svg-jww-viewer-mbt:
-        specifier: ^2025.12.0
-        version: 2025.12.0
+      svg-jww-viewer:
+        specifier: workspace:*
+        version: link:..
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -452,9 +452,6 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
-  svg-jww-viewer-mbt@2025.12.0:
-    resolution: {integrity: sha512-jaxQDBqXj6NiV9rzkV86NPLAKSP1j8hQV08wLGzY98PTxi5i/2azrm+It704QNXBgMnwWfy3+FftQWML8FInBA==}
-
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
@@ -826,8 +823,6 @@ snapshots:
       fsevents: 2.3.3
 
   source-map-js@1.2.1: {}
-
-  svg-jww-viewer-mbt@2025.12.0: {}
 
   tinyglobby@0.2.15:
     dependencies:

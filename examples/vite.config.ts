@@ -7,7 +7,7 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    include: ["svg-jww-viewer-mbt"],
+    include: ["svg-jww-viewer"],
   },
   server: {
     port: 5173,

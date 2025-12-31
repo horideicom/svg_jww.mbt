@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "svg-jww-viewer-mbt": "^2025.12.0",
+    "svg-jww-viewer": "workspace:*",
     "jww-parser-mbt": "^2025.12.6"
   },
   "devDependencies": {
