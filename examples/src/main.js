@@ -613,6 +613,14 @@ function renderEntity(entity, coordTransform) {
   }
 }
 
+// Get screen size for responsive layout
+function getScreenSize() {
+  const width = window.innerWidth;
+  if (width <= 480) return 'mobile';
+  if (width <= 768) return 'tablet';
+  return 'desktop';
+}
+
 function getColor(penColor) {
   const idx = penColor || 1;
   const colors = [
@@ -623,6 +631,69 @@ function getColor(penColor) {
 }
 
 function renderFloatingPanel(layerGroups) {
+  const screenSize = getScreenSize();
+  const isMobile = screenSize === 'mobile';
+  const isTablet = screenSize === 'tablet';
+
+  // Responsive panel styles
+  let panelStyle, headerStyle, headerCursor, showOverlay = '';
+
+  if (isMobile) {
+    // Mobile: bottom sheet
+    panelStyle = `
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-height: 50vh;
+      border-radius: 12px 12px 0 0;
+      transform: translateY(0);
+      transition: transform 0.3s ease-out;
+    `;
+    headerStyle = `
+      padding: 12px 16px;
+      border-radius: 12px 12px 0 0;
+    `;
+    headerCursor = 'pointer';
+    showOverlay = `<div id="jww-panel-overlay" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      display: none;
+    "></div>`;
+  } else if (isTablet) {
+    // Tablet: smaller floating panel
+    panelStyle = `
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 200px;
+    `;
+    headerStyle = `
+      padding: 10px 12px;
+      border-radius: 6px 6px 0 0;
+    `;
+    headerCursor = 'grab';
+  } else {
+    // Desktop: full floating panel
+    panelStyle = `
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 240px;
+    `;
+    headerStyle = `
+      padding: 10px 12px;
+      border-radius: 6px 6px 0 0;
+    `;
+    headerCursor = 'grab';
+  }
+
   let layerItems = '';
   for (const layer of layerGroups) {
     const checked = layer.visible ? 'checked' : '';
@@ -643,37 +714,41 @@ function renderFloatingPanel(layerGroups) {
   }
 
   return `
-    <div id="jww-floating-panel" style="
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 240px;
+    ${showOverlay}
+    <div id="jww-floating-panel" data-screen-size="${screenSize}" style="
+      ${panelStyle}
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid #ccc;
-      border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       z-index: 1000;
+      display: flex;
+      flex-direction: column;
     ">
-      <!-- Draggable Header -->
+      <!-- Header -->
       <div id="jww-panel-header" style="
-        padding: 10px 12px;
+        ${headerStyle}
         background: #f5f5f5;
         border-bottom: 1px solid #ddd;
-        border-radius: 6px 6px 0 0;
-        cursor: grab;
+        cursor: ${headerCursor};
         user-select: none;
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: space-between;
         font-weight: 600;
         font-size: 14px;
       ">
-        <span>≡</span>
-        <span>コントロール</span>
+        <span style="display: flex; align-items: center; gap: 6px;">
+          ${isMobile ? '▼' : '≡'}
+          <span>コントロール</span>
+        </span>
       </div>
 
-      <!-- Zoom Section -->
+      <!-- Panel Content (scrollable on mobile) -->
+      <div style="
+        ${isMobile ? 'overflow-y: auto; flex: 1;' : ''}
+      ">
+        <!-- Zoom Section -->
       <div style="
         padding: 12px;
         border-bottom: 1px solid #eee;
@@ -820,6 +895,7 @@ function renderFloatingPanel(layerGroups) {
         ">レイヤー (${layerGroups.length})</div>
         ${layerItems}
       </div>
+      </div>
     </div>
   `;
 }
@@ -833,10 +909,52 @@ function setupLayerToggles(viewer) {
   });
 }
 
+function setupMobilePanelToggle() {
+  const panel = document.getElementById('jww-floating-panel');
+  const header = document.getElementById('jww-panel-header');
+  const overlay = document.getElementById('jww-panel-overlay');
+  if (!panel || !header) return;
+
+  const screenSize = panel.dataset.screenSize;
+  if (screenSize !== 'mobile') return;
+
+  let isOpen = true;
+
+  const togglePanel = () => {
+    isOpen = !isOpen;
+    if (isOpen) {
+      panel.style.transform = 'translateY(0)';
+      if (overlay) overlay.style.display = 'block';
+    } else {
+      panel.style.transform = 'translateY(100%)';
+      if (overlay) overlay.style.display = 'none';
+    }
+  };
+
+  // Header click to toggle
+  header.addEventListener('click', (e) => {
+    // Prevent drag from triggering toggle
+    if (!e.defaultPrevented) {
+      togglePanel();
+    }
+  });
+
+  // Overlay click to close
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      if (isOpen) togglePanel();
+    });
+  }
+}
+
 function setupPanelDrag() {
   const panel = document.getElementById('jww-floating-panel');
   const header = document.getElementById('jww-panel-header');
   if (!panel || !header) return;
+
+  // Skip drag on mobile
+  const screenSize = panel.dataset.screenSize;
+  if (screenSize === 'mobile') return;
 
   let isDragging = false;
   let startX, startY, panelStartX, panelStartY;
@@ -941,6 +1059,49 @@ async function loadJWWFile(file) {
 
     // Setup panel drag
     setupPanelDrag();
+
+    // Setup mobile panel toggle
+    setupMobilePanelToggle();
+
+    // Handle window resize - re-render panel for responsive layout
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const canvas = document.getElementById('jww-canvas');
+        if (canvas) {
+          // Remove old panel
+          const oldPanel = document.getElementById('jww-floating-panel');
+          const oldOverlay = document.getElementById('jww-panel-overlay');
+          if (oldPanel) oldPanel.remove();
+          if (oldOverlay) oldOverlay.remove();
+
+          // Re-add panel with new responsive styles
+          canvas.insertAdjacentHTML('beforeend', renderFloatingPanel(layerGroups));
+
+          // Re-setup event handlers
+          setupLayerToggles(viewer);
+          setupPanelDrag();
+          setupMobilePanelToggle();
+
+          // Re-bind button handlers
+          document.getElementById('jww-zoom-in').onclick = () => viewer.zoomIn();
+          document.getElementById('jww-zoom-out').onclick = () => viewer.zoomOut();
+          document.getElementById('jww-fit').onclick = () => viewer.fit();
+          document.getElementById('jww-reset').onclick = () => viewer.reset();
+          document.getElementById('jww-reset-text').onclick = () => viewer.resetTextPositions();
+
+          const fontSizeSlider = document.getElementById('jww-font-size');
+          fontSizeSlider.addEventListener('input', (e) => {
+            viewer.setFontSize(parseFloat(e.target.value));
+          });
+          const textEnabledCheckbox = document.getElementById('jww-text-enabled');
+          textEnabledCheckbox.addEventListener('change', (e) => {
+            viewer.setTextEnabled(e.target.checked);
+          });
+        }
+      }, 250);
+    });
 
     // Initial fit
     setTimeout(() => viewer.fit(), 100);
