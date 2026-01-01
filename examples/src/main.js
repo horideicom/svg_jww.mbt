@@ -544,6 +544,10 @@ function getEntityType(value) {
   if (value.def_number !== undefined) {
     return 'Block';
   }
+  // Image - has image_path
+  if (value.image_path !== undefined) {
+    return 'Image';
+  }
   return 'Unknown';
 }
 
@@ -625,6 +629,17 @@ function getEntityBounds(entity) {
       maxY: value.center_y + r,
     };
   }
+  if (value.image_path !== undefined) {
+    // Image - use x/y and width/height
+    const w = value.width || 100;
+    const h = value.height || 100;
+    return {
+      minX: value.x,
+      minY: value.y,
+      maxX: value.x + w,
+      maxY: value.y + h,
+    };
+  }
   if (value.x !== undefined && value.y !== undefined && value.start_x === undefined) {
     // Point
     return {
@@ -637,8 +652,28 @@ function getEntityBounds(entity) {
   return null;
 }
 
+// Resolve image path relative to JWW file directory
+function resolveImagePath(imagePath, jwwFileName) {
+  if (!jwwFileName) return imagePath;
+
+  // JWWファイルのディレクトリを取得
+  const lastSlash = Math.max(jwwFileName.lastIndexOf('/'), jwwFileName.lastIndexOf('\\'));
+  const jwwDir = lastSlash >= 0 ? jwwFileName.substring(0, lastSlash + 1) : '';
+
+  // パスから%temp%等のプレフィックスを削除
+  // 例: %temp%C_Users_hideyuki_Desktop_Gazou_img_TouchJW_v2_title_png.bmp
+  //     -> C_Users_hideyuki_Desktop_Gazou_img_TouchJW_v2_title_png.bmp
+  let cleanPath = imagePath.replace(/^%[^%]*%/, '');
+
+  // Windowsパス区切りをスラッシュに変換
+  cleanPath = cleanPath.replace(/\\/g, '/');
+
+  // 相対パスを解決
+  return jwwDir + cleanPath;
+}
+
 // Render SVG for JWW data
-function renderJWWToSVG(jwwData) {
+function renderJWWToSVG(jwwData, jwwFileName = '') {
   console.log('Rendering JWW data, entities:', jwwData.entities?.length);
 
   const bounds = calculateBounds(jwwData);
@@ -661,7 +696,7 @@ function renderJWWToSVG(jwwData) {
   for (const layer of layerGroups) {
     svg += `<g id="layer-${layer.id}" class="jww-layer" data-layer="${layer.id}">\n`;
     for (const entity of layer.entities) {
-      svg += renderEntity(entity, coordTransform);
+      svg += renderEntity(entity, coordTransform, jwwFileName);
     }
     svg += `</g>\n`;
   }
@@ -670,7 +705,7 @@ function renderJWWToSVG(jwwData) {
   return { svgContent: svg, layerGroups, bounds, coordTransform };
 }
 
-function renderEntity(entity, coordTransform) {
+function renderEntity(entity, coordTransform, jwwFileName) {
   const value = getEntityValue(entity);
   const base = value.base || {};
   const color = getColor(base.pen_color);
@@ -778,6 +813,25 @@ function renderEntity(entity, coordTransform) {
 
     case 'Block':
       return `<!-- Block entity: def_number=${value.def_number} -->\n`;
+
+    case 'Image': {
+      const x = value.x;
+      const y = coordTransform.transformY(value.y);
+      const width = value.width || 100;
+      const height = value.height || 100;
+      const imagePath = value.image_path;
+      const rotation = value.rotation || 0;
+
+      let transform = '';
+      if (rotation !== 0) {
+        transform = ` transform="rotate(${rotation} ${x} ${y})"`;
+      }
+
+      // 画像パスを解決（JWWファイルからの相対パス）
+      const href = resolveImagePath(imagePath, jwwFileName);
+
+      return `<image x="${x}" y="${y}" width="${width}" height="${height}" href="${href}"${transform} class="jww-image"/>\n`;
+    }
 
     default:
       return `<!-- Unhandled entity type: ${type} -->\n`;
@@ -1204,7 +1258,7 @@ async function loadJWWFile(file) {
     console.log('Parsed JWW data:', jwwData);
     console.log('Entities count:', jwwData.entities?.length);
 
-    const { svgContent, layerGroups, bounds, coordTransform } = renderJWWToSVG(jwwData);
+    const { svgContent, layerGroups, bounds, coordTransform } = renderJWWToSVG(jwwData, file.name);
 
     const app = document.getElementById('app');
     app.innerHTML = `
