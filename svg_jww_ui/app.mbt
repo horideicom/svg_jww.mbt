@@ -131,7 +131,6 @@ pub fn render_info_panel(
   state_sig : @signal.Signal[AppState],
 ) -> @luna.Node[Unit] {
   let config = @panel.make_panel_config("Document Info")
-
   let content = @luna.h(
     "div",
     [
@@ -167,12 +166,10 @@ pub fn render_info_panel(
       ]),
     ],
   )
-
   let footer = @luna.text_dyn(fn() {
     let layers = state_sig.get().layers
     layers.length().to_string() + " layers"
   })
-
   @panel.render_panel(config, content, Some(footer))
 }
 

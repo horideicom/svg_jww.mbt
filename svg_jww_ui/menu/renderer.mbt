@@ -23,12 +23,11 @@ pub fn render_menu_item(
     Toggle(active) => {
       let handler = find_handler(item.id, handlers)
       let base = @styles.button()
-      let active_style = @css.styles([("background", "#0066cc"), ("color", "white")])
-      let style = if active {
-        @css.combine([base, active_style])
-      } else {
-        base
-      }
+      let active_style = @css.styles([
+        ("background", "#0066cc"),
+        ("color", "white"),
+      ])
+      let style = if active { @css.combine([base, active_style]) } else { base }
       @luna.h(
         "button",
         [
@@ -39,32 +38,21 @@ pub fn render_menu_item(
         [@luna.text(item.label)],
       )
     }
-    Separator => {
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static(@styles.separator()))],
-        [@luna.text("|")],
-      )
-    }
-    Spacer => {
-      @luna.h(
-        "div",
-        [("class", @luna.attr_static(@styles.spacer()))],
-        [],
-      )
-    }
+    Separator =>
+      @luna.h("span", [("class", @luna.attr_static(@styles.separator()))], [
+        @luna.text("|"),
+      ])
+    Spacer =>
+      @luna.h("div", [("class", @luna.attr_static(@styles.spacer()))], [])
     Display => {
-      let style =
-        if item.id == "logo" {
-          @styles.toolbar_title()
-        } else {
-          @styles.info_text()
-        }
-      @luna.h(
-        "span",
-        [("class", @luna.attr_static(style))],
-        [@luna.text(item.label)],
-      )
+      let style = if item.id == "logo" {
+        @styles.toolbar_title()
+      } else {
+        @styles.info_text()
+      }
+      @luna.h("span", [("class", @luna.attr_static(style))], [
+        @luna.text(item.label),
+      ])
     }
   }
 }

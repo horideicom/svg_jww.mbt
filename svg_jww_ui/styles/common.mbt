@@ -26,9 +26,7 @@ pub fn panel_header() -> String {
 ///|
 /// Panel content style
 pub fn panel_content() -> String {
-  @css.styles([
-    ("padding", "0"),
-  ])
+  @css.styles([("padding", "0")])
 }
 
 ///|
@@ -84,35 +82,25 @@ pub fn toolbar() -> String {
 ///|
 /// Toolbar title style
 pub fn toolbar_title() -> String {
-  @css.styles([
-    ("font-weight", "bold"),
-    ("font-size", "16px"),
-  ])
+  @css.styles([("font-weight", "bold"), ("font-size", "16px")])
 }
 
 ///|
 /// Separator style
 pub fn separator() -> String {
-  @css.styles([
-    ("color", "#999"),
-  ])
+  @css.styles([("color", "#999")])
 }
 
 ///|
 /// Info text style
 pub fn info_text() -> String {
-  @css.styles([
-    ("font-size", "12px"),
-    ("color", "#666"),
-  ])
+  @css.styles([("font-size", "12px"), ("color", "#666")])
 }
 
 ///|
 /// Spacer style (flex: 1)
 pub fn spacer() -> String {
-  @css.styles([
-    ("flex", "1"),
-  ])
+  @css.styles([("flex", "1")])
 }
 
 ///|
@@ -130,19 +118,13 @@ pub fn layer_item() -> String {
 ///|
 /// Layer name style
 pub fn layer_name() -> String {
-  @css.styles([
-    ("flex", "1"),
-    ("font-size", "13px"),
-  ])
+  @css.styles([("flex", "1"), ("font-size", "13px")])
 }
 
 ///|
 /// Layer list style
 pub fn layer_list() -> String {
-  @css.styles([
-    ("max-height", "300px"),
-    ("overflow-y", "auto"),
-  ])
+  @css.styles([("max-height", "300px"), ("overflow-y", "auto")])
 }
 
 ///|
@@ -160,27 +142,19 @@ pub fn floating_panel() -> String {
 ///|
 /// Draggable panel header style
 pub fn panel_header_draggable() -> String {
-  @css.styles([
-    ("cursor", "grab"),
-    ("user-select", "none"),
-  ])
+  @css.styles([("cursor", "grab"), ("user-select", "none")])
 }
 
 ///|
 /// Dragging state style (grabbing cursor)
 pub fn panel_header_dragging() -> String {
-  @css.styles([
-    ("cursor", "grabbing"),
-  ])
+  @css.styles([("cursor", "grabbing")])
 }
 
 ///|
 /// Panel section divider style
 pub fn panel_section() -> String {
-  @css.styles([
-    ("border-top", "1px solid #ddd"),
-    ("padding", "8px"),
-  ])
+  @css.styles([("border-top", "1px solid #ddd"), ("padding", "8px")])
 }
 
 ///|
@@ -198,11 +172,7 @@ pub fn panel_section_title() -> String {
 ///|
 /// Icon button grid layout
 pub fn icon_button_grid() -> String {
-  @css.styles([
-    ("display", "flex"),
-    ("gap", "4px"),
-    ("flex-wrap", "wrap"),
-  ])
+  @css.styles([("display", "flex"), ("gap", "4px"), ("flex-wrap", "wrap")])
 }
 
 ///|
@@ -225,19 +195,11 @@ pub fn icon_button_large() -> String {
 ///|
 /// Control button row style
 pub fn control_row() -> String {
-  @css.styles([
-    ("display", "flex"),
-    ("align-items", "center"),
-    ("gap", "8px"),
-  ])
+  @css.styles([("display", "flex"), ("align-items", "center"), ("gap", "8px")])
 }
 
 ///|
 /// Scale display style
 pub fn scale_display() -> String {
-  @css.styles([
-    ("font-size", "12px"),
-    ("color", "#666"),
-    ("min-width", "60px"),
-  ])
+  @css.styles([("font-size", "12px"), ("color", "#666"), ("min-width", "60px")])
 }

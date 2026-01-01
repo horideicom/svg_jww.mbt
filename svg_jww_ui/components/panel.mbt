@@ -10,7 +10,7 @@ pub struct PanelConfig {
 ///|
 /// Create a panel config (factory function)
 pub fn make_panel_config(title : String) -> PanelConfig {
-  { title: title }
+  { title, }
 }
 
 ///|
@@ -21,27 +21,24 @@ pub fn render_panel(
   footer : @luna.Node[Unit]?,
 ) -> @luna.Node[Unit] {
   let base_children = [
-    @luna.h(
-      "div",
-      [("class", @luna.attr_static(@styles.panel_header()))],
-      [@luna.text(config.title)],
-    ),
-    @luna.h(
-      "div",
-      [("class", @luna.attr_static(@styles.panel_content()))],
-      [content],
-    ),
+    @luna.h("div", [("class", @luna.attr_static(@styles.panel_header()))], [
+      @luna.text(config.title),
+    ]),
+    @luna.h("div", [("class", @luna.attr_static(@styles.panel_content()))], [
+      content,
+    ]),
   ]
-
-  let children =
-    match footer {
-      Some(f) => {
-        let footer_div = @luna.h("div", [("class", @luna.attr_static(@styles.panel_footer()))], [f])
-        [base_children[0], base_children[1], footer_div]
-      }
-      None => base_children
+  let children = match footer {
+    Some(f) => {
+      let footer_div = @luna.h(
+        "div",
+        [("class", @luna.attr_static(@styles.panel_footer()))],
+        [f],
+      )
+      [base_children[0], base_children[1], footer_div]
     }
-
+    None => base_children
+  }
   @luna.h(
     "div",
     [("class", @luna.attr_static(@styles.panel_container()))],

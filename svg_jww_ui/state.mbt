@@ -45,7 +45,13 @@ pub struct DragState {
 ///|
 /// Create idle drag state
 pub fn DragState::new() -> DragState {
-  { is_dragging: false, start_x: 0.0, start_y: 0.0, panel_start_x: 0.0, panel_start_y: 0.0 }
+  {
+    is_dragging: false,
+    start_x: 0.0,
+    start_y: 0.0,
+    panel_start_x: 0.0,
+    panel_start_y: 0.0,
+  }
 }
 
 ///|
@@ -330,8 +336,8 @@ pub fn DragState::start(
 ) -> DragState {
   {
     is_dragging: true,
-    start_x: start_x,
-    start_y: start_y,
+    start_x,
+    start_y,
     panel_start_x: panel_x,
     panel_start_y: panel_y,
   }

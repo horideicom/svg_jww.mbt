@@ -14,7 +14,6 @@ fn render_layer_item(
   let opacity_value = if layer.visible { "1.0" } else { "0.5" }
   let opacity_style = @css.styles([("opacity", opacity_value)])
   let item_style = @css.combine([@styles.layer_item(), opacity_style])
-
   @luna.h(
     "div",
     [
@@ -68,23 +67,23 @@ pub fn render_layer_panel(
   on_select_layer : @luna.EventHandler[Unit],
 ) -> @luna.Node[Unit] {
   let config = @panel.make_panel_config("Layers")
-
   let layers = state_sig.get().layers
   let layer_list = @luna.h(
     "div",
-    [("class", @luna.attr_static("jww-layer-list")), ("class", @luna.attr_static(@styles.layer_list()))],
+    [
+      ("class", @luna.attr_static("jww-layer-list")),
+      ("class", @luna.attr_static(@styles.layer_list())),
+    ],
     layers.map(fn(layer) {
       render_layer_item(
         layer, on_toggle_visibility, on_toggle_lock, on_select_layer,
       )
     }),
   )
-
   let footer = @luna.text_dyn(fn() {
     let layers = state_sig.get().layers
     layers.length().to_string() + " layers"
   })
-
   @panel.render_panel(config, layer_list, Some(footer))
 }
 
@@ -99,7 +98,10 @@ pub fn render_collapsible_layer_panel(
 ) -> @luna.Node[Unit] {
   @luna.h(
     "div",
-    [("class", @luna.attr_static("jww-layer-panel-wrapper")), ("class", @luna.attr_static(@styles.panel_container()))],
+    [
+      ("class", @luna.attr_static("jww-layer-panel-wrapper")),
+      ("class", @luna.attr_static(@styles.panel_container())),
+    ],
     [
       // Collapsible header
       @luna.h(
@@ -107,15 +109,18 @@ pub fn render_collapsible_layer_panel(
         [
           ("class", @luna.attr_static("jww-layer-panel-toggle")),
           ("class", @luna.attr_static(@styles.panel_header())),
-          ("style", @luna.attr_static("cursor: pointer; display: flex; justify-content: space-between; align-items: center;")),
+          (
+            "style",
+            @luna.attr_static(
+              "cursor: pointer; display: flex; justify-content: space-between; align-items: center;",
+            ),
+          ),
           ("onClick", @luna.attr_handler(on_toggle_panel)),
         ],
         [
           @luna.h(
             "span",
-            [
-              ("class", @luna.attr_static(@styles.panel_header())),
-            ],
+            [("class", @luna.attr_static(@styles.panel_header()))],
             [@luna.text("Layers")],
           ),
           @luna.h("span", [("style", @luna.attr_static("font-size: 12px;"))], [

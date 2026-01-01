@@ -22,13 +22,22 @@ pub struct MenuItem {
 
 ///|
 /// Create a button menu item
-pub fn button(id~ : String, label~ : String, tooltip~ : String = "") -> MenuItem {
+pub fn button(
+  id~ : String,
+  label~ : String,
+  tooltip? : String = "",
+) -> MenuItem {
   { id, label, tooltip, kind: Button }
 }
 
 ///|
 /// Create a toggle menu item
-pub fn toggle(id~ : String, label~ : String, active~ : Bool, tooltip~ : String = "") -> MenuItem {
+pub fn toggle(
+  id~ : String,
+  label~ : String,
+  active~ : Bool,
+  tooltip? : String = "",
+) -> MenuItem {
   { id, label, tooltip, kind: Toggle(active) }
 }
 
