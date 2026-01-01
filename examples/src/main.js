@@ -46,6 +46,15 @@ class JWWViewer {
     this.lastMouseX = 0;
     this.lastMouseY = 0;
 
+    // Touch state for pan
+    this.isTouchPanning = false;
+    this.lastTouchX = 0;
+    this.lastTouchY = 0;
+
+    // Touch state for pinch zoom
+    this.lastPinchDistance = 0;
+    this.pinchScaleStart = 1.0;
+
     // Text dragging state
     this.isDraggingText = false;
     this.draggedText = null;
@@ -149,6 +158,43 @@ class JWWViewer {
       }
     });
 
+    // Touch move handler for text dragging
+    window.addEventListener('touchmove', (e) => {
+      if (this.isDraggingText && this.draggedText && e.touches.length === 1) {
+        const rect = this.svg.getBoundingClientRect();
+        const viewBox = this.svg.getAttribute('viewBox').split(' ').map(Number);
+        const vbWidth = viewBox[2];
+        const vbHeight = viewBox[3];
+        const scale = vbWidth / rect.width;
+
+        const dx = (e.touches[0].clientX - this.dragStartX) * scale;
+        const dy = (e.touches[0].clientY - this.dragStartY) * scale;
+
+        const newX = this.textOrigX + dx;
+        const newY = this.textOrigY + dy;
+
+        this.draggedText.setAttribute('x', newX);
+        this.draggedText.setAttribute('y', newY);
+
+        // Update transform if present
+        const transform = this.draggedText.getAttribute('transform');
+        if (transform && transform.includes('rotate')) {
+          const rotateMatch = transform.match(/rotate\(([^)]+)\)/);
+          if (rotateMatch) {
+            this.draggedText.setAttribute('transform', `rotate(${rotateMatch[1]}, ${newX}, ${newY})`);
+          }
+        }
+      }
+    }, { passive: false });
+
+    // Touch end handler for text dragging
+    window.addEventListener('touchend', () => {
+      if (this.isDraggingText) {
+        this.isDraggingText = false;
+        this.draggedText = null;
+      }
+    });
+
     // Keyboard shortcuts
     window.addEventListener('keydown', (e) => {
       if (e.key === '+' || e.key === '=') {
@@ -165,6 +211,108 @@ class JWWViewer {
           e.preventDefault();
           this.reset();
         }
+      }
+    });
+
+    // Touch events for mobile devices
+    if (isTouchDevice()) {
+      this.setupTouchEvents();
+    }
+  }
+
+  setupTouchEvents() {
+    // Touch start - detect pan or pinch
+    this.svg.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        // Single finger - prepare for pan
+        const touch = e.touches[0];
+        // Check if touching on a text element
+        if (e.target.tagName === 'text' || e.target.closest && e.target.closest('text')) {
+          // Let text drag handle it
+          return;
+        }
+        this.isTouchPanning = true;
+        this.lastTouchX = touch.clientX;
+        this.lastTouchY = touch.clientY;
+      } else if (e.touches.length === 2) {
+        // Two fingers - prepare for pinch zoom
+        this.isTouchPanning = false;
+        this.lastPinchDistance = getTouchDistance(e.touches);
+        this.pinchScaleStart = this.scale;
+      }
+    }, { passive: false });
+
+    // Touch move - handle pan or pinch
+    this.svg.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // Prevent page scroll
+
+      if (e.touches.length === 1 && this.isTouchPanning) {
+        // Single finger pan
+        const touch = e.touches[0];
+        const dx = touch.clientX - this.lastTouchX;
+        const dy = touch.clientY - this.lastTouchY;
+
+        const rect = this.svg.getBoundingClientRect();
+        const viewBox = this.svg.getAttribute('viewBox').split(' ').map(Number);
+        const vbWidth = viewBox[2];
+        const vbHeight = viewBox[3];
+
+        // Convert pixel delta to viewBox units
+        const scale = vbWidth / rect.width;
+        this.offsetX -= dx * scale;
+        this.offsetY -= dy * scale;
+
+        this.lastTouchX = touch.clientX;
+        this.lastTouchY = touch.clientY;
+        this.updateViewBox();
+      } else if (e.touches.length === 2) {
+        // Two finger pinch zoom
+        const currentDistance = getTouchDistance(e.touches);
+        if (this.lastPinchDistance > 0) {
+          const scaleRatio = currentDistance / this.lastPinchDistance;
+          const newScale = this.pinchScaleStart * scaleRatio;
+
+          // Clamp scale to reasonable limits
+          const clampedScale = Math.max(0.1, Math.min(newScale, 10.0));
+
+          // Calculate zoom center (midpoint between touches)
+          const rect = this.svg.getBoundingClientRect();
+          const touchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const touchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+          // Apply zoom centered on touch position
+          this.scale = clampedScale;
+          const newVbWidth = this.origWidth / this.scale;
+          const newVbHeight = this.origHeight / this.scale;
+
+          // Get current viewBox
+          const viewBox = this.svg.getAttribute('viewBox').split(' ').map(Number);
+          const vbX = viewBox[0];
+          const vbY = viewBox[1];
+          const vbWidth = viewBox[2];
+          const vbHeight = viewBox[3];
+
+          // Calculate zoom center in viewBox coordinates
+          const vbCenterX = vbX + (touchCenterX / rect.width) * vbWidth;
+          const vbCenterY = vbY + (touchCenterY / rect.height) * vbHeight;
+
+          // Adjust offset to keep zoom center stationary
+          const vbRatioX = (vbCenterX - vbX) / vbWidth;
+          const vbRatioY = (vbCenterY - vbY) / vbHeight;
+
+          this.offsetX = vbCenterX - newVbWidth * vbRatioX - this.origMinX;
+          this.offsetY = vbCenterY - newVbHeight * vbRatioY - this.origMinY;
+
+          this.updateViewBox();
+        }
+      }
+    }, { passive: false });
+
+    // Touch end - reset states
+    this.svg.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        this.isTouchPanning = false;
+        this.lastPinchDistance = 0;
       }
     });
   }
@@ -287,6 +435,7 @@ class JWWViewer {
         textEl.dataset.origY = textEl.getAttribute('y') || 0;
       }
 
+      // Mouse events
       textEl.addEventListener('mousedown', (e) => {
         // Check if text features are enabled
         if (!this.textEnabled) return;
@@ -301,6 +450,24 @@ class JWWViewer {
         this.textOrigX = parseFloat(textEl.getAttribute('x')) || 0;
         this.textOrigY = parseFloat(textEl.getAttribute('y')) || 0;
       });
+
+      // Touch events for mobile
+      textEl.addEventListener('touchstart', (e) => {
+        // Check if text features are enabled
+        if (!this.textEnabled) return;
+
+        if (e.touches.length === 1) {
+          e.stopPropagation();
+          e.preventDefault();
+
+          this.isDraggingText = true;
+          this.draggedText = textEl;
+          this.dragStartX = e.touches[0].clientX;
+          this.dragStartY = e.touches[0].clientY;
+          this.textOrigX = parseFloat(textEl.getAttribute('x')) || 0;
+          this.textOrigY = parseFloat(textEl.getAttribute('y')) || 0;
+        }
+      }, { passive: false });
     });
   }
 
@@ -619,6 +786,21 @@ function getScreenSize() {
   if (width <= 480) return 'mobile';
   if (width <= 768) return 'tablet';
   return 'desktop';
+}
+
+// Check if device supports touch
+function isTouchDevice() {
+  return 'ontouchstart' in window ||
+         navigator.maxTouchPoints > 0 ||
+         navigator.msMaxTouchPoints > 0;
+}
+
+// Calculate distance between two touch points for pinch zoom
+function getTouchDistance(touches) {
+  if (touches.length < 2) return 0;
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 function getColor(penColor) {
