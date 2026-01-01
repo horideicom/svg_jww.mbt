@@ -19,6 +19,36 @@ pub fn Viewport::new() -> Viewport {
 }
 
 ///|
+/// Floating panel position and state
+pub struct PanelState {
+  x : Double
+  y : Double
+  collapsed : Bool
+}
+
+///|
+/// Create default panel state (positioned at top-right)
+pub fn PanelState::new() -> PanelState {
+  { x: 10.0, y: 10.0, collapsed: false }
+}
+
+///|
+/// Drag state for panel movement
+pub struct DragState {
+  is_dragging : Bool
+  start_x : Double
+  start_y : Double
+  panel_start_x : Double
+  panel_start_y : Double
+}
+
+///|
+/// Create idle drag state
+pub fn DragState::new() -> DragState {
+  { is_dragging: false, start_x: 0.0, start_y: 0.0, panel_start_x: 0.0, panel_start_y: 0.0 }
+}
+
+///|
 /// Layer visibility state
 pub struct LayerState {
   layer_id : Int
@@ -50,6 +80,8 @@ pub fn Selection::new() -> Selection {
 /// Application state
 pub struct AppState {
   viewport : Viewport
+  panel : PanelState
+  drag : DragState
   layers : Array[LayerState]
   selection : Selection
   background_color : String
@@ -67,6 +99,8 @@ pub fn AppState::new() -> AppState {
   ]
   {
     viewport: Viewport::new(),
+    panel: PanelState::new(),
+    drag: DragState::new(),
     layers,
     selection: Selection::new(),
     background_color: "#ffffff",
@@ -277,4 +311,58 @@ pub fn Selection::set_hovered(self : Selection, id : String) -> Selection {
 /// Get visible layers
 pub fn AppState::visible_layers(self : AppState) -> Array[LayerState] {
   self.layers.filter(fn(l) { l.visible })
+}
+
+///|
+/// Toggle panel collapsed state
+pub fn PanelState::toggle(self : PanelState) -> PanelState {
+  { x: self.x, y: self.y, collapsed: !self.collapsed }
+}
+
+///|
+/// Start dragging panel
+pub fn DragState::start(
+  self : DragState,
+  start_x : Double,
+  start_y : Double,
+  panel_x : Double,
+  panel_y : Double,
+) -> DragState {
+  {
+    is_dragging: true,
+    start_x: start_x,
+    start_y: start_y,
+    panel_start_x: panel_x,
+    panel_start_y: panel_y,
+  }
+}
+
+///|
+/// Update panel position during drag
+pub fn DragState::update(
+  self : DragState,
+  current_x : Double,
+  current_y : Double,
+) -> (Double, Double) {
+  if self.is_dragging {
+    let dx = current_x - self.start_x
+    let dy = current_y - self.start_y
+    let new_x = self.panel_start_x + dx
+    let new_y = self.panel_start_y + dy
+    (new_x, new_y)
+  } else {
+    (0.0, 0.0)
+  }
+}
+
+///|
+/// Stop dragging
+pub fn DragState::stop(self : DragState) -> DragState {
+  {
+    is_dragging: false,
+    start_x: self.start_x,
+    start_y: self.start_y,
+    panel_start_x: self.panel_start_x,
+    panel_start_y: self.panel_start_y,
+  }
 }

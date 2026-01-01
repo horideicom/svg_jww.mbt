@@ -1,5 +1,34 @@
 {
   "import": [
     "mizchi/luna/luna/css"
-  ]
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "panel_container",
+        "panel_header",
+        "panel_content",
+        "panel_footer",
+        "button",
+        "icon_button",
+        "toolbar",
+        "toolbar_title",
+        "separator",
+        "spacer",
+        "info_text",
+        "layer_item",
+        "layer_name",
+        "layer_list",
+        "floating_panel",
+        "panel_header_draggable",
+        "panel_header_dragging",
+        "panel_section",
+        "panel_section_title",
+        "icon_button_grid",
+        "icon_button_large",
+        "control_row",
+        "scale_display"
+      ]
+    }
+  }
 }

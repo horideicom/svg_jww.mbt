@@ -16,7 +16,10 @@
       "exports": [
         "render_app",
         "render_app_html",
-        "serialize_state"
+        "serialize_state",
+        "AppState",
+        "PanelState",
+        "DragState"
       ],
       "format": "esm"
     }

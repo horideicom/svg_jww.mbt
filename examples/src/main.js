@@ -622,103 +622,206 @@ function getColor(penColor) {
   return colors[Math.min(idx, colors.length - 1)];
 }
 
-function renderToolbar() {
-  return `
-    <div id="jww-toolbar" style="
-      display: flex;
-      gap: 8px;
-      padding: 8px 12px;
-      background: #f5f5f5;
-      border-bottom: 1px solid #ddd;
-      align-items: center;
-      flex-wrap: wrap;
-    ">
-      <button id="jww-zoom-in" title="Zoom In (Ctrl+)" style="
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">➕</button>
-      <button id="jww-zoom-out" title="Zoom Out (Ctrl-)" style="
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">➖</button>
-      <button id="jww-fit" title="Fit to View (F)" style="
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">Fit</button>
-      <button id="jww-reset" title="Reset View (Ctrl+R)" style="
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">Reset</button>
-      <span style="border-left: 1px solid #ddd; margin: 0 8px;"></span>
-      <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666;">
-        <input type="checkbox" id="jww-text-enabled" checked style="cursor: pointer;">
-        Text
-      </label>
-      <button id="jww-reset-text" title="Reset Text Positions" style="
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-      ">Reset Text</button>
-      <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666;">
-        Size:
-        <input type="range" id="jww-font-size" min="0.5" max="3" step="0.1" value="1" style="
-          width: 80px;
-          cursor: pointer;
-        ">
-        <span id="jww-font-display" style="min-width: 35px;">100%</span>
-      </label>
-      <span style="flex: 1"></span>
-      <span style="font-size: 12px; color: #666;">
-        Scale: <span id="jww-scale-display">100%</span>
-      </span>
-    </div>
-  `;
-}
-
-function renderLayerControl(layerGroups) {
-  let html = `<div id="layer-panel" style="
-    position: fixed;
-    top: 60px;
-    right: 10px;
-    background: rgba(255,255,255,0.95);
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
-  ">`;
-  html += '<div style="font-weight: 600; margin-bottom: 10px; font-size: 14px; color: #333;">Layers</div>';
-
+function renderFloatingPanel(layerGroups) {
+  let layerItems = '';
   for (const layer of layerGroups) {
     const checked = layer.visible ? 'checked' : '';
-    html += `<label style="display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer; font-size: 13px; color: #444;">
-      <input type="checkbox" ${checked} data-layer="${layer.id}" class="layer-toggle" style="cursor: pointer;">
-      <span>L${layer.id}</span>
-      <span style="color: #999; font-size: 11px;">(${layer.entities.length})</span>
-    </label>`;
+    layerItems += `
+      <label style="
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        cursor: pointer;
+        font-size: 13px;
+      ">
+        <input type="checkbox" ${checked} data-layer="${layer.id}" class="layer-toggle" style="cursor: pointer;">
+        <span style="flex: 1;">L${layer.id}</span>
+        <span style="color: #999; font-size: 11px;">(${layer.entities.length})</span>
+      </label>
+    `;
   }
-  html += '</div>';
-  return html;
+
+  return `
+    <div id="jww-floating-panel" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 240px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 1000;
+    ">
+      <!-- Draggable Header -->
+      <div id="jww-panel-header" style="
+        padding: 10px 12px;
+        background: #f5f5f5;
+        border-bottom: 1px solid #ddd;
+        border-radius: 6px 6px 0 0;
+        cursor: grab;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 14px;
+      ">
+        <span>≡</span>
+        <span>コントロール</span>
+      </div>
+
+      <!-- Zoom Section -->
+      <div style="
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: bold;
+          color: #888;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        ">ズーム操作</div>
+        <div style="
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        ">
+          <button id="jww-zoom-in" title="拡大" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🔍+</button>
+          <button id="jww-zoom-out" title="縮小" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🔍−</button>
+          <button id="jww-fit" title="フィット" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">📐</button>
+          <button id="jww-reset" title="リセット" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🔄</button>
+        </div>
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 8px;
+          font-size: 12px;
+          color: #666;
+        ">
+          <span>倍率:</span>
+          <span id="jww-scale-display" style="min-width: 40px;">100%</span>
+        </div>
+      </div>
+
+      <!-- Text Section -->
+      <div style="
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: bold;
+          color: #888;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        ">テキスト操作</div>
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        ">
+          <label style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            cursor: pointer;
+          ">
+            <input type="checkbox" id="jww-text-enabled" checked style="cursor: pointer;">
+            <span>有効</span>
+          </label>
+          <button id="jww-reset-text" title="テキスト位置リセット" style="
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+          ">リセット</button>
+        </div>
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 8px;
+          font-size: 12px;
+          color: #666;
+        ">
+          <span>サイズ:</span>
+          <input type="range" id="jww-font-size" min="0.5" max="3" step="0.1" value="1" style="
+            flex: 1;
+            cursor: pointer;
+          ">
+          <span id="jww-font-display" style="min-width: 35px;">100%</span>
+        </div>
+      </div>
+
+      <!-- Layers Section -->
+      <div style="
+        padding: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: bold;
+          color: #888;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        ">レイヤー (${layerGroups.length})</div>
+        ${layerItems}
+      </div>
+    </div>
+  `;
 }
 
 function setupLayerToggles(viewer) {
@@ -727,6 +830,44 @@ function setupLayerToggles(viewer) {
       const layerId = cb.dataset.layer;
       viewer.toggleLayer(layerId);
     });
+  });
+}
+
+function setupPanelDrag() {
+  const panel = document.getElementById('jww-floating-panel');
+  const header = document.getElementById('jww-panel-header');
+  if (!panel || !header) return;
+
+  let isDragging = false;
+  let startX, startY, panelStartX, panelStartY;
+
+  header.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = panel.getBoundingClientRect();
+    panelStartX = rect.left;
+    panelStartY = rect.top;
+    header.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const newX = panelStartX + dx;
+    const newY = panelStartY + dy;
+    panel.style.left = newX + 'px';
+    panel.style.top = newY + 'px';
+    panel.style.right = 'auto';
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      header.style.cursor = 'grab';
+    }
   });
 }
 
@@ -760,11 +901,9 @@ async function loadJWWFile(file) {
 
     const app = document.getElementById('app');
     app.innerHTML = `
-      <div style="display: flex; flex-direction: column; height: 100vh;">
-        ${renderToolbar()}
-        <div id="jww-canvas" style="flex: 1; position: relative; overflow: hidden;">
-          ${svgContent}
-        </div>
+      <div id="jww-canvas" style="width: 100%; height: 100vh; position: relative; overflow: hidden;">
+        ${svgContent}
+        ${renderFloatingPanel(layerGroups)}
       </div>
     `;
 
@@ -776,7 +915,7 @@ async function loadJWWFile(file) {
 
     const viewer = new JWWViewer(canvas, svg, bounds, coordTransform, layerGroups);
 
-    // Setup toolbar buttons
+    // Setup zoom buttons
     document.getElementById('jww-zoom-in').onclick = () => viewer.zoomIn();
     document.getElementById('jww-zoom-out').onclick = () => viewer.zoomOut();
     document.getElementById('jww-fit').onclick = () => viewer.fit();
@@ -797,9 +936,11 @@ async function loadJWWFile(file) {
     // Setup reset text button
     document.getElementById('jww-reset-text').onclick = () => viewer.resetTextPositions();
 
-    // Add layer control
-    app.insertAdjacentHTML('beforeend', renderLayerControl(layerGroups));
+    // Setup layer toggles
     setupLayerToggles(viewer);
+
+    // Setup panel drag
+    setupPanelDrag();
 
     // Initial fit
     setTimeout(() => viewer.fit(), 100);
