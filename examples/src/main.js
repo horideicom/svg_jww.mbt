@@ -486,8 +486,11 @@ class JWWViewer {
     this.textEnabled = enabled;
     const texts = this.svg.querySelectorAll('text.jww-text');
     texts.forEach(el => {
-      el.style.cursor = enabled ? 'move' : 'default';
-      el.style.pointerEvents = enabled ? 'auto' : 'none';
+      // Always allow pointer events for text selection
+      el.style.pointerEvents = 'auto';
+      el.style.cursor = enabled ? 'move' : 'text';
+      el.style.userSelect = enabled ? 'none' : 'text';
+      el.style.webkitUserSelect = enabled ? 'none' : 'text';
     });
 
     // Reset font size when disabled
@@ -742,14 +745,14 @@ function renderEntity(entity, coordTransform) {
 
       if (isMultiLine) {
         const tsDy = lineHeight;
-        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif; letter-spacing: ${spacing}px; cursor: move;">`;
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;">`;
         lines.forEach((line, i) => {
           const dy = i === 0 ? '0' : tsDy;
           svgText += `<tspan x="${x}" dy="${dy}">${escapeHtml(line)}</tspan>`;
         });
         svgText += `</text>\n`;
       } else {
-        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" style="font-family: sans-serif; letter-spacing: ${spacing}px; cursor: move;`;
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;";`;
         if (charWidthScale !== 1) {
           svgText += ` transform-box: fill-box; transform-origin: left center; transform: rotate(${svgAngle}, ${x}, ${y}) scaleX(${charWidthScale});`;
         } else {
