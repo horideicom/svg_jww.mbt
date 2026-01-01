@@ -1343,8 +1343,6 @@ function showImagePlaceholder(imgEl) {
             fill="#fff5f5" stroke="#e53e3e" stroke-width="2" stroke-dasharray="5,5"/>
       <line x1="${x}" y1="${y}" x2="${x + width}" y2="${y + height}" stroke="#e53e3e" stroke-width="1"/>
       <line x1="${x + width}" y1="${y}" x2="${x}" y2="${y + height}" stroke="#e53e3e" stroke-width="1"/>
-      <text x="${x + width/2}" y="${y + height/2}" dy="0.35em" text-anchor="middle"
-            fill="#c53030" font-size="14" font-weight="bold">画像なし</text>
     </g>
   `;
 
