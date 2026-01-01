@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "parse": "node cli-parse.js"
   },
   "dependencies": {
     "jww-parser": "^2025.12.10",
