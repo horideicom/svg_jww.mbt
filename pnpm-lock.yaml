@@ -18,8 +18,8 @@ importers:
   examples:
     dependencies:
       jww-parser:
-        specifier: ^2025.12.7
-        version: 2025.12.7
+        specifier: ^2025.12.9
+        version: 2025.12.9
       svg-jww-viewer:
         specifier: ^2025.12.1
         version: 2025.12.1
@@ -419,8 +419,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  jww-parser@2025.12.7:
-    resolution: {integrity: sha512-GUkEngIoRx2E5FHSbpx2r0Ney2xl8zOb+DRy6InNkoF194Ocb7N1dUYHTF7vBj0dA6WP9ARCp+uavbU9eqIqrg==}
+  jww-parser@2025.12.9:
+    resolution: {integrity: sha512-Cb1qNwshnP+dJzx7W8j8dgkoHx6v2ljCpq+fl607D//1Imvl/E1WE+3KEtQeMukwLRuG+yVp82h/zd89oOaraw==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -764,7 +764,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  jww-parser@2025.12.7: {}
+  jww-parser@2025.12.9: {}
 
   nanoid@3.3.11: {}
 
