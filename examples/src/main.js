@@ -1109,7 +1109,8 @@ function setupMobilePanelToggle() {
       panel.style.transform = 'translateY(0)';
       if (overlay) overlay.style.display = 'block';
     } else {
-      panel.style.transform = 'translateY(100%)';
+      // Keep header visible (44px) when closed - above address bar
+      panel.style.transform = 'translateY(calc(100% - 44px - env(safe-area-inset-bottom)))';
       if (overlay) overlay.style.display = 'none';
     }
   };
