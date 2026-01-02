@@ -606,9 +606,10 @@ function getEntityType(value) {
 
 // Group entities by layer
 function groupEntitiesByLayer(jwwData) {
+  // JWW standard layer names: A0-A9 (layers 0-9), B0-B5 (layers 10-15)
   const layers = Array.from({ length: 16 }, (_, i) => ({
     id: i,
-    name: `Layer ${i}`,
+    name: `${i < 10 ? 'A' : 'B'}${i % 10}`,
     entities: [],
     visible: true
   }));

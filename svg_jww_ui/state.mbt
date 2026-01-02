@@ -99,10 +99,11 @@ pub struct AppState {
 ///|
 /// Create default app state
 pub fn AppState::new() -> AppState {
+  // JWW standard layer names: A0-A9 (layers 0-9), B0-B5 (layers 10-15)
   let layers = [
-    LayerState::new(0, "Layer 0"),
-    LayerState::new(1, "Layer 1"),
-    LayerState::new(2, "Layer 2"),
+    LayerState::new(0, "A0"),
+    LayerState::new(1, "A1"),
+    LayerState::new(2, "A2"),
   ]
   {
     viewport: Viewport::new(),
