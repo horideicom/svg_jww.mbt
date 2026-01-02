@@ -545,11 +545,11 @@ pub fn line_type_to_dasharray(
 /// Get MIME type for image format
 pub fn image_format_to_mime(format : @svg_jww_types.JwwImageFormat) -> String {
   match format {
-    svg_jww_types::JwwImageFormat::Jpeg => "image/jpeg"
-    svg_jww_types::JwwImageFormat::Png => "image/png"
-    svg_jww_types::JwwImageFormat::Bmp => "image/bmp"
-    svg_jww_types::JwwImageFormat::Gif => "image/gif"
-    svg_jww_types::JwwImageFormat::Unknown => "image/octet-stream"
+    @svg_jww_types.JwwImageFormat::Jpeg => "image/jpeg"
+    @svg_jww_types.JwwImageFormat::Png => "image/png"
+    @svg_jww_types.JwwImageFormat::Bmp => "image/bmp"
+    @svg_jww_types.JwwImageFormat::Gif => "image/gif"
+    @svg_jww_types.JwwImageFormat::Unknown => "image/octet-stream"
   }
 }
 
