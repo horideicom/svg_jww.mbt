@@ -3,6 +3,124 @@
 /// Uses luna for reactive UI with Signal-based state management
 
 ///|
+/// Document information extracted from JWW file
+pub struct DocumentInfo {
+  version : String
+  memo : String
+  paper_size : String         // "A0", "A1", etc.
+  drawing_width : Double
+  drawing_height : Double
+  // Entity statistics
+  line_count : Int
+  arc_count : Int
+  point_count : Int
+  text_count : Int
+  solid_count : Int
+  block_count : Int
+  image_count : Int
+  polyline_count : Int
+  // Print settings
+  print_origin_x : Double
+  print_origin_y : Double
+  print_scale : Double
+  print_rotation : UInt
+  // Layer info
+  layer_count : Int
+  layer_group_count : Int
+  embedded_image_count : Int
+}
+
+///|
+/// Convert paper size number to string
+fn paper_size_to_string(size : UInt) -> String {
+  match size.reinterpret_as_int() {
+    0 => "A0"
+    1 => "A1"
+    2 => "A2"
+    3 => "A3"
+    4 => "A4"
+    8 => "2A"
+    9 => "3A"
+    _ => "Unknown(" + size.to_string() + ")"
+  }
+}
+
+///|
+/// Create DocumentInfo from individual fields
+pub fn DocumentInfo::create(
+  version : String,
+  memo : String,
+  paper_size_num : UInt,
+  drawing_width : Double,
+  drawing_height : Double,
+  line_count : Int,
+  arc_count : Int,
+  point_count : Int,
+  text_count : Int,
+  solid_count : Int,
+  block_count : Int,
+  image_count : Int,
+  polyline_count : Int,
+  print_origin_x : Double,
+  print_origin_y : Double,
+  print_scale : Double,
+  print_rotation : UInt,
+  layer_count : Int,
+  layer_group_count : Int,
+  embedded_image_count : Int,
+) -> DocumentInfo {
+  {
+    version,
+    memo,
+    paper_size: paper_size_to_string(paper_size_num),
+    drawing_width,
+    drawing_height,
+    line_count,
+    arc_count,
+    point_count,
+    text_count,
+    solid_count,
+    block_count,
+    image_count,
+    polyline_count,
+    print_origin_x,
+    print_origin_y,
+    print_scale,
+    print_rotation,
+    layer_count,
+    layer_group_count,
+    embedded_image_count,
+  }
+}
+
+///|
+/// Create default document info
+pub fn DocumentInfo::default() -> DocumentInfo {
+  {
+    version: "7.00",
+    memo: "",
+    paper_size: "A3",
+    drawing_width: 0.0,
+    drawing_height: 0.0,
+    line_count: 0,
+    arc_count: 0,
+    point_count: 0,
+    text_count: 0,
+    solid_count: 0,
+    block_count: 0,
+    image_count: 0,
+    polyline_count: 0,
+    print_origin_x: 0.0,
+    print_origin_y: 0.0,
+    print_scale: 1.0,
+    print_rotation: 0U,
+    layer_count: 16,
+    layer_group_count: 16,
+    embedded_image_count: 0,
+  }
+}
+
+///|
 /// Viewport state for pan and zoom
 pub struct Viewport {
   scale : Double
@@ -94,6 +212,7 @@ pub struct AppState {
   show_grid : Bool
   show_ruler : Bool
   show_print_area : Bool
+  document_info : Option[DocumentInfo]
 }
 
 ///|
@@ -115,6 +234,7 @@ pub fn AppState::new() -> AppState {
     show_grid: false,
     show_ruler: false,
     show_print_area: false,
+    document_info: None,
   }
 }
 
@@ -320,6 +440,26 @@ pub fn Selection::set_hovered(self : Selection, id : String) -> Selection {
 /// Get visible layers
 pub fn AppState::visible_layers(self : AppState) -> Array[LayerState] {
   self.layers.filter(fn(l) { l.visible })
+}
+
+///|
+/// Set document info in AppState
+pub fn AppState::with_document_info(
+  self : AppState,
+  doc_info : DocumentInfo,
+) -> AppState {
+  {
+    viewport: self.viewport,
+    panel: self.panel,
+    drag: self.drag,
+    layers: self.layers,
+    selection: self.selection,
+    background_color: self.background_color,
+    show_grid: self.show_grid,
+    show_ruler: self.show_ruler,
+    show_print_area: self.show_print_area,
+    document_info: Some(doc_info),
+  }
 }
 
 ///|

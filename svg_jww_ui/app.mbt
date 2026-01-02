@@ -164,11 +164,65 @@ pub fn render_info_panel(
       ),
     ],
     [
+      // Document section
+      render_section_header("Document"),
       @luna.h("div", [], [
-        @luna.text("Viewport:"),
+        @luna.text("Version:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.version
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Paper:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.paper_size
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Size:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => {
+              let w = info.drawing_width.to_int().to_string()
+              let h = info.drawing_height.to_int().to_string()
+              if w == "0" && h == "0" {
+                "-"
+              } else {
+                w + "x" + h
+              }
+            }
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Memo:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => {
+              if info.memo == "" {
+                "-"
+              } else {
+                info.memo
+              }
+            }
+            None => "-"
+          }
+        }),
+      ]),
+      // Viewport section
+      render_section_header("Viewport"),
+      @luna.h("div", [], [
+        @luna.text("Size:"),
         @luna.text_dyn(fn() {
           let vp = state_sig.get().viewport
-          vp.width.to_string() + "x" + vp.height.to_string()
+          vp.width.to_int().to_string() + "x" + vp.height.to_int().to_string()
         }),
       ]),
       @luna.h("div", [], [
@@ -178,21 +232,167 @@ pub fn render_info_panel(
           (vp.scale * 100.0).to_int().to_string() + "%"
         }),
       ]),
+      // Entities section
+      render_section_header("Entities"),
+      @luna.h("div", [], [
+        @luna.text("Lines:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.line_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Arcs:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.arc_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Points:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.point_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Texts:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.text_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Solids:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.solid_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Blocks:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.block_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Polylines:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.polyline_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Images:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.image_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      // Print Settings section
+      render_section_header("Print Settings"),
+      @luna.h("div", [], [
+        @luna.text("Origin:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => {
+              let x = info.print_origin_x.to_int().to_string()
+              let y = info.print_origin_y.to_int().to_string()
+              "(" + x + ", " + y + ")"
+            }
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Scale:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.print_scale.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Rotation:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.print_rotation.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      // Layers section
+      render_section_header("Layers"),
+      @luna.h("div", [], [
+        @luna.text("Groups:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.layer_group_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
       @luna.h("div", [], [
         @luna.text("Layers:"),
         @luna.text_dyn(fn() {
-          let state = state_sig.get()
-          let visible = state.layers.filter(fn(l) { l.visible }).length()
-          visible.to_string() + " / " + state.layers.length().to_string()
+          match state_sig.get().document_info {
+            Some(info) => info.layer_count.to_string()
+            None => "-"
+          }
+        }),
+      ]),
+      @luna.h("div", [], [
+        @luna.text("Embed imgs:"),
+        @luna.text_dyn(fn() {
+          match state_sig.get().document_info {
+            Some(info) => info.embedded_image_count.to_string()
+            None => "-"
+          }
         }),
       ]),
     ],
   )
   let footer = @luna.text_dyn(fn() {
-    let layers = state_sig.get().layers
-    layers.length().to_string() + " layers"
+    let state = state_sig.get()
+    let visible = state.layers.filter(fn(l) { l.visible }).length()
+    visible.to_string() + " / " + state.layers.length().to_string() + " visible"
   })
   @panel.render_panel(config, content, Some(footer))
+}
+
+///|
+/// Render a section header in the info panel
+fn render_section_header(title : String) -> @luna.Node[Unit] {
+  @luna.h(
+    "div",
+    [
+      (
+        "style",
+        @luna.attr_static(
+          "margin-top: 8px; margin-bottom: 2px; font-weight: bold; color: #333; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 2px;",
+        ),
+      ),
+    ],
+    [@luna.text(title)],
+  )
 }
 
 ///|
