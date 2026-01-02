@@ -787,16 +787,19 @@ function renderEntity(entity, coordTransform, jwwFileName) {
 
       let svgText = '';
 
+      // Use theme text color instead of entity color
+      const textColor = themes[currentTheme].textColor;
+
       if (isMultiLine) {
         const tsDy = lineHeight;
-        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;">`;
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${textColor}" data-base-size="${fontSize}" class="jww-text" transform="rotate(${svgAngle}, ${x}, ${y})" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;">`;
         lines.forEach((line, i) => {
           const dy = i === 0 ? '0' : tsDy;
           svgText += `<tspan x="${x}" dy="${dy}">${escapeHtml(line)}</tspan>`;
         });
         svgText += `</text>\n`;
       } else {
-        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}" data-base-size="${fontSize}" class="jww-text" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;";`;
+        svgText += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${textColor}" data-base-size="${fontSize}" class="jww-text" style="font-family: sans-serif; letter-spacing: ${spacing}px; user-select: text; -webkit-user-select: text;";`;
         if (charWidthScale !== 1) {
           svgText += ` transform-box: fill-box; transform-origin: left center; transform: rotate(${svgAngle}, ${x}, ${y}) scaleX(${charWidthScale});`;
         } else {
@@ -1002,32 +1005,6 @@ function renderFloatingPanel(layerGroups) {
       <div style="
         ${isMobile ? 'overflow-y: auto; flex: 1;' : ''}
       ">
-        <!-- Theme Section -->
-      <div style="
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-      ">
-        <div style="
-          font-size: 11px;
-          font-weight: bold;
-          color: #888;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-        ">テーマ</div>
-        <select id="jww-theme-select" style="
-          width: 100%;
-          padding: 6px 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          background: white;
-          font-size: 13px;
-          cursor: pointer;
-        ">
-          <option value="system" ${currentTheme === 'system' ? 'selected' : ''}>System</option>
-          <option value="solarizedLight" ${currentTheme === 'solarizedLight' ? 'selected' : ''}>Solarized Light</option>
-          <option value="solarizedDark" ${currentTheme === 'solarizedDark' ? 'selected' : ''}>Solarized Dark</option>
-        </select>
-      </div>
         <!-- Zoom Section -->
       <div style="
         padding: 12px;
@@ -1195,6 +1172,31 @@ function renderFloatingPanel(layerGroups) {
           <div style="font-size: 12px; color: #999;">画像なし</div>
         </div>
       </div>
+      <!-- Theme Section -->
+      <div style="
+        padding: 12px;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: bold;
+          color: #888;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        ">テーマ</div>
+        <select id="jww-theme-select" style="
+          width: 100%;
+          padding: 6px 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          background: white;
+          font-size: 13px;
+          cursor: pointer;
+        ">
+          <option value="system" ${currentTheme === 'system' ? 'selected' : ''}>System</option>
+          <option value="solarizedLight" ${currentTheme === 'solarizedLight' ? 'selected' : ''}>Solarized Light</option>
+          <option value="solarizedDark" ${currentTheme === 'solarizedDark' ? 'selected' : ''}>Solarized Dark</option>
+        </select>
+      </div>
       </div>
     </div>
   `;
@@ -1290,18 +1292,28 @@ function setupPanelDrag() {
   });
 }
 
-// Set theme and update SVG background
+// Set theme and update SVG background, text colors, and placeholder colors
 function setTheme(themeName) {
   if (!themes[themeName]) return;
   currentTheme = themeName;
 
-  // Update SVG background rect
   const svg = document.querySelector('#jww-canvas svg');
   if (svg) {
+    // Update SVG background rect
     const bgRect = svg.querySelector('rect:first-child');
     if (bgRect) {
       bgRect.setAttribute('fill', themes[themeName].bg);
     }
+
+    // Update text colors
+    svg.querySelectorAll('text.jww-text').forEach(textEl => {
+      textEl.setAttribute('fill', themes[themeName].textColor);
+    });
+
+    // Update placeholder fill colors
+    svg.querySelectorAll('rect[fill-opacity="0.3"]').forEach(rect => {
+      rect.setAttribute('fill', themes[themeName].bg);
+    });
   }
 }
 
@@ -1315,9 +1327,9 @@ const placeholderVisibility = new Map();
 
 // Theme definitions
 const themes = {
-  system: { name: 'System', bg: '#000000' },
-  solarizedLight: { name: 'Solarized Light', bg: '#fdf6e3' },
-  solarizedDark: { name: 'Solarized Dark', bg: '#002b36' }
+  system: { name: 'System', bg: '#000000', textColor: '#ffffff' },
+  solarizedLight: { name: 'Solarized Light', bg: '#fdf6e3', textColor: '#657b83' },
+  solarizedDark: { name: 'Solarized Dark', bg: '#002b36', textColor: '#839496' }
 };
 
 let currentTheme = 'system';
@@ -1389,12 +1401,11 @@ function showImagePlaceholder(imgEl) {
   // Check if placeholder already exists
   if (document.getElementById(placeholderId)) return;
 
+  const theme = themes[currentTheme];
   const placeholder = `
     <g id="${placeholderId}" class="image-placeholder">
       <rect x="${x}" y="${y}" width="${width}" height="${height}"
-            fill="#fff5f5" stroke="#e53e3e" stroke-width="2" stroke-dasharray="5,5"/>
-      <line x1="${x}" y1="${y}" x2="${x + width}" y2="${y + height}" stroke="#e53e3e" stroke-width="1"/>
-      <line x1="${x + width}" y1="${y}" x2="${x}" y2="${y + height}" stroke="#e53e3e" stroke-width="1"/>
+            fill="${theme.bg}" fill-opacity="0.3" stroke="#e53e3e" stroke-width="2" stroke-dasharray="5,5"/>
     </g>
   `;
 
