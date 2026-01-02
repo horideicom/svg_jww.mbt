@@ -354,6 +354,13 @@ test "render_document_simple" {
     ],
     layer_count: 16,
     layer_group_count: 16,
+    print_settings: {
+      origin_x: 0.0,
+      origin_y: 0.0,
+      scale: 1.0,
+      rotation_setting: 0,
+    },
+    embedded_images: [],
   }
   let opts = RenderOptions::with_size(200.0, 200.0)
   let result = render_document(doc, opts)
@@ -403,6 +410,13 @@ test "calculate_document_bounds" {
     ],
     layer_count: 16,
     layer_group_count: 16,
+    print_settings: {
+      origin_x: 0.0,
+      origin_y: 0.0,
+      scale: 1.0,
+      rotation_setting: 0,
+    },
+    embedded_images: [],
   }
   let bounds = calculate_document_bounds(doc)
   inspect(bounds.min_x, content="0")

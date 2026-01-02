@@ -9,6 +9,7 @@ pub fn render_entity(entity : JwwEntity, opts : RenderOptions) -> SvgElement {
     JwwEntity::SolidEnt(solid) => render_solid(solid, opts)
     JwwEntity::BlockEnt(block) => render_block(block, opts)
     JwwEntity::PolylineEnt(poly) => render_polyline(poly, opts)
+    JwwEntity::ImageEnt(img) => render_image(img, opts)
   }
 }
 
@@ -214,6 +215,56 @@ pub fn render_polyline(poly : JwwPolyline, opts : RenderOptions) -> SvgElement {
 }
 
 ///|
+/// Render an image entity
+pub fn render_image(img : JwwImage, opts : RenderOptions) -> SvgElement {
+  let x = opts.transform_x(img.x)
+  let y = opts.transform_y(img.y)
+  let width = opts.transform_distance(img.width)
+  let height = opts.transform_distance(img.height)
+  let attrs = [
+    attr("x", x.to_string()),
+    attr("y", y.to_string()),
+    attr("width", width.to_string()),
+    attr("height", height.to_string()),
+    attr("href", img.image_path),
+    style_attr(
+      "transform-origin: " +
+      x.to_string() +
+      "px " +
+      y.to_string() +
+      "px; transform: rotate(" +
+      (-img.rotation).to_string() +
+      "deg);",
+    ),
+  ]
+  image_elem(attrs)
+}
+
+///|
+/// Render print area visualization
+pub fn render_print_area(
+  doc : JwwDocument,
+  opts : RenderOptions,
+) -> SvgElement {
+  let x = opts.transform_x(doc.print_settings.origin_x)
+  let y = opts.transform_y(doc.print_settings.origin_y)
+  // Use drawing width/height for print area size
+  let width = opts.transform_distance(doc.drawing_width)
+  let height = opts.transform_distance(doc.drawing_height)
+  let attrs = [
+    attr("x", x.to_string()),
+    attr("y", y.to_string()),
+    attr("width", width.to_string()),
+    attr("height", height.to_string()),
+    stroke_attr("#ff0000"),
+    fill_none(),
+    attr("stroke-width", "1"),
+    style_attr("stroke-dasharray: 5,5;"),
+  ]
+  rect(attrs)
+}
+
+///|
 /// Render an entire document
 pub fn render_document(doc : JwwDocument, opts : RenderOptions) -> SvgElement {
   // Calculate document bounds
@@ -228,6 +279,13 @@ pub fn render_document(doc : JwwDocument, opts : RenderOptions) -> SvgElement {
     bounds.height().to_string()
   // Render all entities
   let entities_svg = doc.entities.map(fn(e) { render_entity(e, opts) })
+  // Add print area if enabled
+  let print_area_svg = if opts.show_print_area {
+    [render_print_area(doc, opts)]
+  } else {
+    []
+  }
+  let all_children = entities_svg.concat(print_area_svg)
   // Root SVG element
   let attrs = [
     attr("viewBox", view_box),
@@ -236,7 +294,7 @@ pub fn render_document(doc : JwwDocument, opts : RenderOptions) -> SvgElement {
     attr("xmlns", "http://www.w3.org/2000/svg"),
     style_attr("background-color: " + opts.background_color + ";"),
   ]
-  svg(attrs, entities_svg)
+  svg(attrs, all_children)
 }
 
 ///|
@@ -297,5 +355,7 @@ pub fn entity_bounds(entity : JwwEntity) -> BoundingBox {
         bbox.expand(px, py)
       })
     }
+    JwwEntity::ImageEnt(img) =>
+      BoundingBox::new().expand(img.x, img.y).expand(img.x + img.width, img.y + img.height)
   }
 }

@@ -118,6 +118,12 @@ pub fn use_ref(attributes : Array[(String, String)]) -> SvgElement {
 }
 
 ///|
+/// Create an image element
+pub fn image_elem(attributes : Array[(String, String)]) -> SvgElement {
+  svg_self_closing("image", attributes)
+}
+
+///|
 /// Convert SVG element to string
 pub fn to_string(elem : SvgElement) -> String {
   match elem {
@@ -332,6 +338,7 @@ pub struct RenderOptions {
   height : Double
   background_color : String
   stroke_width_scale : Double
+  show_print_area : Bool
 }
 
 ///|
@@ -344,6 +351,7 @@ pub fn RenderOptions::new() -> RenderOptions {
     height: 600.0,
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
+    show_print_area: false,
   }
 }
 
@@ -360,6 +368,7 @@ pub fn RenderOptions::with_size(
     height,
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
+    show_print_area: false,
   }
 }
 
@@ -373,6 +382,7 @@ pub fn RenderOptions::with_scale(scale : Double) -> RenderOptions {
     height: 600.0,
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
+    show_print_area: false,
   }
 }
 
@@ -529,4 +539,34 @@ pub fn line_type_to_dasharray(
       Some(("stroke-dasharray", scaled))
     }
   }
+}
+
+///|
+/// Get MIME type for image format
+pub fn image_format_to_mime(format : @svg_jww_types.JwwImageFormat) -> String {
+  match format {
+    svg_jww_types::JwwImageFormat::Jpeg => "image/jpeg"
+    svg_jww_types::JwwImageFormat::Png => "image/png"
+    svg_jww_types::JwwImageFormat::Bmp => "image/bmp"
+    svg_jww_types::JwwImageFormat::Gif => "image/gif"
+    svg_jww_types::JwwImageFormat::Unknown => "image/octet-stream"
+  }
+}
+
+///|
+/// Convert bytes to base64 string (placeholder - requires base64 library)
+pub fn bytes_to_base64(data : Bytes) -> String {
+  // TODO: Implement proper base64 encoding
+  // For now, return empty string as placeholder
+  ""
+}
+
+///|
+/// Create data URL from embedded image data
+pub fn embedded_image_to_data_url(
+  embedded_image : @svg_jww_types.JwwEmbeddedImage,
+) -> String {
+  let mime = image_format_to_mime(embedded_image.format)
+  let base64 = bytes_to_base64(embedded_image.data)
+  "data:" + mime + ";base64," + base64
 }

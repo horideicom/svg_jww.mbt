@@ -92,6 +92,46 @@ pub struct JwwPolyline {
 }
 
 ///|
+/// Image entity
+pub struct JwwImage {
+  base : EntityBase
+  image_path : String
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+  rotation : Double // in degrees
+}
+
+///|
+/// Image format (detected from magic bytes)
+pub enum JwwImageFormat {
+  Unknown
+  Jpeg
+  Png
+  Bmp
+  Gif
+}
+
+///|
+/// Embedded image data (Ver.7.00+)
+pub struct JwwEmbeddedImage {
+  index : UInt
+  file_size : UInt
+  data : Bytes
+  format : JwwImageFormat
+}
+
+///|
+/// Print settings
+pub struct JwwPrintSettings {
+  origin_x : Double
+  origin_y : Double
+  scale : Double
+  rotation_setting : UInt
+}
+
+///|
 /// Entity enum
 pub enum JwwEntity {
   LineEnt(JwwLine)
@@ -101,6 +141,7 @@ pub enum JwwEntity {
   SolidEnt(JwwSolid)
   BlockEnt(JwwBlock)
   PolylineEnt(JwwPolyline)
+  ImageEnt(JwwImage)
 }
 
 ///|
@@ -114,6 +155,8 @@ pub struct JwwDocument {
   entities : Array[JwwEntity]
   layer_count : Int
   layer_group_count : Int
+  print_settings : JwwPrintSettings
+  embedded_images : Array[JwwEmbeddedImage]
 }
 
 ///|
@@ -141,5 +184,12 @@ pub fn JwwDocument::new() -> JwwDocument {
     entities: [],
     layer_count: 16,
     layer_group_count: 16,
+    print_settings: {
+      origin_x: 0.0,
+      origin_y: 0.0,
+      scale: 1.0,
+      rotation_setting: 0,
+    },
+    embedded_images: [],
   }
 }
