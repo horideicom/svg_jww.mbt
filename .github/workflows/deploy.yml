@@ -30,7 +30,7 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: cd examples && pnpm install
+        run: pnpm install
 
       - name: Build examples
         run: cd examples && pnpm run build
