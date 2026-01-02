@@ -341,6 +341,7 @@ test "render_document_simple" {
     version: "7.00",
     memo: "",
     version_number: 700,
+    paper_size: 2U,
     drawing_width: 100.0,
     drawing_height: 100.0,
     entities: [
@@ -391,6 +392,7 @@ test "calculate_document_bounds" {
     version: "7.00",
     memo: "",
     version_number: 700,
+    paper_size: 2U,
     drawing_width: 100.0,
     drawing_height: 100.0,
     entities: [
@@ -468,4 +470,137 @@ test "math_trig_functions" {
   // cos(pi) should be close to -1
   inspect(cos_pi < -0.9, content="true")
   inspect(cos_pi > -1.1, content="false")
+}
+
+// === Property-Based Testing with QuickCheck ===
+
+type Gen[T] = @quickcheck.Gen[T]
+
+///|
+/// Generate a random double value using int_bound and converting to double
+fn gen_double() -> Gen[Double] {
+  @quickcheck.int_bound(2000).fmap(fn(i) {
+    (i.to_double() - 1000.0)
+  })
+}
+
+///|
+/// Generate a random positive double value in range [0, 1000]
+fn gen_positive_double() -> Gen[Double] {
+  @quickcheck.int_bound(1000).fmap(fn(i) { i.to_double() })
+}
+
+///|
+/// Generate a random scale value in range [0.1, 100]
+fn gen_scale() -> Gen[Double] {
+  @quickcheck.int_bound(1000).fmap(fn(i) {
+    let val = i.to_double() / 10.0
+    if val < 0.1 { 0.1 } else { val }
+  })
+}
+
+///|
+/// Property: Transform::transform_x satisfies the formula x * scale + offset_x
+test "transform_x_formula" {
+  let prop = @quickcheck.liftA3(
+    fn(scale : Double, offset : Double, x : Double) {
+      let t = Transform::{ scale, offset_x: offset, offset_y: 0.0, flip_y: false }
+      let result = t.transform_x(x)
+      let expected = x * scale + offset
+      (result - expected).abs() < 0.0001
+    },
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+  )
+  @quickcheck.quick_check(prop)
+}
+
+///|
+/// Property: Transform::transform_x is linear when offset is zero
+test "transform_x_linearity" {
+  let prop = @quickcheck.liftA3(
+    fn(scale : Double, x : Double, k : Double) {
+      let t = Transform::{ scale, offset_x: 0.0, offset_y: 0.0, flip_y: false }
+      let left = t.transform_x(x * k)
+      let right = t.transform_x(x) * k
+      (left - right).abs() < 0.0001
+    },
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+  )
+  @quickcheck.quick_check(prop)
+}
+
+///|
+/// Property: Transform::transform_y with flip_y=true inverts Y coordinate
+test "transform_y_flip_inverts" {
+  let prop = @quickcheck.liftA4(
+    fn(scale : Double, offset : Double, y : Double, height : Double) {
+      let h = if height < 1.0 { 100.0 } else { height }
+      let t = Transform::{ scale, offset_x: 0.0, offset_y: offset, flip_y: true }
+      let result = t.transform_y(y, h)
+      let expected = h - (y * scale) + offset
+      (result - expected).abs() < 0.0001
+    },
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+    gen_positive_double(),
+  )
+  @quickcheck.quick_check(prop)
+}
+
+///|
+/// Property: Transform::transform_y without flip_y preserves Y direction
+test "transform_y_no_flip_preserves" {
+  let prop = @quickcheck.liftA3(
+    fn(scale : Double, offset : Double, y : Double) {
+      let t = Transform::{ scale, offset_x: 0.0, offset_y: offset, flip_y: false }
+      let result = t.transform_y(y, 100.0)
+      let expected = y * scale + offset
+      (result - expected).abs() < 0.0001
+    },
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+  )
+  @quickcheck.quick_check(prop)
+}
+
+///|
+/// Property: RenderOptions::transform_x satisfies the formula x * scale + offset_x
+test "render_options_transform_x_formula" {
+  let prop = @quickcheck.liftA3(
+    fn(scale : Double, offset : Double, x : Double) {
+      let opts = { ..RenderOptions::new(), scale, offset_x: offset }
+      let result = opts.transform_x(x)
+      let expected = x * scale + offset
+      (result - expected).abs() < 0.0001
+    },
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+  )
+  @quickcheck.quick_check(prop)
+}
+
+///|
+/// Property: RenderOptions::transform_y flips Y coordinate
+test "render_options_transform_y_flips" {
+  let prop = @quickcheck.liftA4(
+    fn(height : Double, scale : Double, offset : Double, y : Double) {
+      let h = if height < 1.0 { 100.0 } else { height }
+      let opts = { ..RenderOptions::new(), height: h, scale, offset_y: offset }
+      let result = opts.transform_y(y)
+      let expected = h - (y * scale + offset)
+      (result - expected).abs() < 0.0001
+    },
+    gen_positive_double(),
+    gen_scale(),
+    gen_double(),
+    gen_double(),
+  )
+  @quickcheck.quick_check(prop)
 }

@@ -3,7 +3,8 @@
   "version": "2025.12.1",
   "deps": {
     "mizchi/luna": "0.3.5",
-    "mizchi/js": "0.10.6"
+    "mizchi/js": "0.10.6",
+    "moonbitlang/quickcheck": "0.9.8"
   },
   "readme": "README.mbt.md",
   "repository": "https://github.com/f4ah6o/svg_jww.mbt",
