@@ -63,6 +63,11 @@ class JWWViewer {
     this.textOrigX = 0;
     this.textOrigY = 0;
 
+    // Display options state
+    this.showGrid = false;
+    this.showRuler = false;
+    this.showPrintArea = false;
+
     this.setupEvents();
     this.setupTextDrag();
     this.setTextEnabled(false);  // Initialize with text disabled
@@ -503,6 +508,47 @@ class JWWViewer {
     if (slider) {
       slider.disabled = !enabled;
       slider.style.opacity = enabled ? '1' : '0.5';
+    }
+  }
+
+  toggleGrid() {
+    this.showGrid = !this.showGrid;
+    this.updateDisplayOptions();
+  }
+
+  toggleRuler() {
+    this.showRuler = !this.showRuler;
+    this.updateDisplayOptions();
+  }
+
+  togglePrintArea() {
+    this.showPrintArea = !this.showPrintArea;
+    this.updateDisplayOptions();
+  }
+
+  updateDisplayOptions() {
+    // Update display status text
+    const statusEl = document.getElementById('jww-display-status');
+    if (statusEl) {
+      const options = [];
+      if (this.showGrid) options.push('グリッド');
+      if (this.showRuler) options.push('ルーラー');
+      if (this.showPrintArea) options.push('印刷領域');
+      statusEl.textContent = options.length > 0 ? options.join(', ') : 'オフ';
+    }
+
+    // Update button styles
+    const gridBtn = document.getElementById('jww-toggle-grid');
+    if (gridBtn) {
+      gridBtn.style.background = this.showGrid ? '#e0e0e0' : 'white';
+    }
+    const rulerBtn = document.getElementById('jww-toggle-ruler');
+    if (rulerBtn) {
+      rulerBtn.style.background = this.showRuler ? '#e0e0e0' : 'white';
+    }
+    const printAreaBtn = document.getElementById('jww-toggle-print-area');
+    if (printAreaBtn) {
+      printAreaBtn.style.background = this.showPrintArea ? '#e0e0e0' : 'white';
     }
   }
 }
@@ -1022,7 +1068,7 @@ function renderFloatingPanel(layerGroups) {
           gap: 4px;
           flex-wrap: wrap;
         ">
-          <button id="jww-zoom-in" title="拡大" style="
+          <button id="jww-zoom-in" data-action="zoom_in" title="拡大" style="
             width: 44px;
             height: 36px;
             border: 1px solid #ddd;
@@ -1034,7 +1080,7 @@ function renderFloatingPanel(layerGroups) {
             align-items: center;
             justify-content: center;
           ">🔍+</button>
-          <button id="jww-zoom-out" title="縮小" style="
+          <button id="jww-zoom-out" data-action="zoom_out" title="縮小" style="
             width: 44px;
             height: 36px;
             border: 1px solid #ddd;
@@ -1046,7 +1092,7 @@ function renderFloatingPanel(layerGroups) {
             align-items: center;
             justify-content: center;
           ">🔍−</button>
-          <button id="jww-fit" title="フィット" style="
+          <button id="jww-fit" data-action="fit" title="フィット" style="
             width: 44px;
             height: 36px;
             border: 1px solid #ddd;
@@ -1058,7 +1104,7 @@ function renderFloatingPanel(layerGroups) {
             align-items: center;
             justify-content: center;
           ">📐</button>
-          <button id="jww-reset" title="リセット" style="
+          <button id="jww-reset" data-action="reset" title="リセット" style="
             width: 44px;
             height: 36px;
             border: 1px solid #ddd;
@@ -1081,6 +1127,72 @@ function renderFloatingPanel(layerGroups) {
         ">
           <span>倍率:</span>
           <span id="jww-scale-display" style="min-width: 40px;">100%</span>
+        </div>
+      </div>
+
+      <!-- Display Options Section -->
+      <div style="
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: bold;
+          color: #888;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        ">表示オプション</div>
+        <div style="
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        ">
+          <button id="jww-toggle-grid" data-action="toggle_grid" title="グリッド表示" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">▦</button>
+          <button id="jww-toggle-ruler" data-action="toggle_ruler" title="ルーラー表示" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">📏</button>
+          <button id="jww-toggle-print-area" data-action="toggle_print_area" title="印刷領域表示" style="
+            width: 44px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">🖼</button>
+        </div>
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 8px;
+          font-size: 12px;
+          color: #666;
+        ">
+          <span id="jww-display-status">表示オプション: オフ</span>
         </div>
       </div>
 
@@ -1639,6 +1751,11 @@ async function loadJWWFile(file) {
 
     // Setup reset text button
     document.getElementById('jww-reset-text').onclick = () => viewer.resetTextPositions();
+
+    // Setup display option toggles
+    document.getElementById('jww-toggle-grid').onclick = () => viewer.toggleGrid();
+    document.getElementById('jww-toggle-ruler').onclick = () => viewer.toggleRuler();
+    document.getElementById('jww-toggle-print-area').onclick = () => viewer.togglePrintArea();
 
     // Setup layer toggles
     setupLayerToggles(viewer);
