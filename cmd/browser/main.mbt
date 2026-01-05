@@ -2,8 +2,6 @@
 /// JWW Viewer - Browser Entry Point
 /// Initializes the viewer application
 
-pub use "../../svg_jww_ui/state.mbt"::{AppState, DocumentInfo}
-
 // Sample SVG content for demo
 fn demo_svg() -> String {
   let sb = StringBuilder::new()
@@ -73,7 +71,7 @@ fn main {
   let app_state = @ui.AppState::new()
 
   // Create sample document info for demo
-  let demo_doc_info = DocumentInfo::create(
+  let demo_doc_info = @ui.DocumentInfo::create(
     "7.00",
     "Demo Drawing",
     3U,  // A3
