@@ -10,10 +10,10 @@
     "parse": "node cli-parse.js"
   },
   "dependencies": {
-    "jww-parser": "^2026.1.4",
     "svg-jww-viewer": "workspace:*"
   },
   "devDependencies": {
+    "jww-parser": "^2026.1.5",
     "typescript": "^5.9.3",
     "vite": "^7.3.0"
   }

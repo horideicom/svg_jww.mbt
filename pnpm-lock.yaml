@@ -17,13 +17,13 @@ importers:
 
   examples:
     dependencies:
-      jww-parser:
-        specifier: ^2026.1.4
-        version: 2026.1.4
       svg-jww-viewer:
         specifier: workspace:*
         version: link:..
     devDependencies:
+      jww-parser:
+        specifier: ^2026.1.5
+        version: 2026.1.5
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -419,8 +419,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  jww-parser@2026.1.4:
-    resolution: {integrity: sha512-0/KrzJvRvffWUR3mhvEWdx1/x69b5opYAxKTGyNdXoesARmKuBan2s2UL1yZ9JalLqIDCmIUrLQgeK9Djks8hQ==}
+  jww-parser@2026.1.5:
+    resolution: {integrity: sha512-G6SS1ccjZaa+OTiNWRZ2Fvb+k95Sl5w9fKtdzgm9q+F2snjdTudXdcNdSwBnO/P36Aj1IH7HDXQyOJg8woCwbg==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -761,7 +761,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  jww-parser@2026.1.4: {}
+  jww-parser@2026.1.5: {}
 
   nanoid@3.3.11: {}
 
