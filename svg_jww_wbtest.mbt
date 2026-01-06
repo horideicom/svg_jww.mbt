@@ -125,10 +125,14 @@ test "render_options_transform" {
   // Create options - using with_size then checking transform methods
   let size_opts = RenderOptions::with_size(800.0, 600.0)
   inspect(size_opts.transform_x(100.0), content="100") // scale is 1.0 by default
+  // transform_y now uses (bounds_max_y - y) * scale + offset_y + padding
+  // with_size sets bounds_max_y = height = 600, padding = 0
+  // So transform_y(0) = (600 - 0) * 1 + 0 + 0 = 600
   inspect(size_opts.transform_y(0.0), content="600")
   let scale_opts = RenderOptions::with_scale(2.0)
   inspect(scale_opts.transform_x(100.0), content="200") // scale is 2.0
-  inspect(scale_opts.transform_y(0.0), content="600") // height is 600.0 by default
+  // transform_y(0) = (600 - 0) * 2 + 0 + 0 = 1200
+  inspect(scale_opts.transform_y(0.0), content="1200")
 }
 
 ///|
@@ -474,14 +478,13 @@ test "math_trig_functions" {
 
 // === Property-Based Testing with QuickCheck ===
 
+///|
 type Gen[T] = @quickcheck.Gen[T]
 
 ///|
 /// Generate a random double value using int_bound and converting to double
 fn gen_double() -> Gen[Double] {
-  @quickcheck.int_bound(2000).fmap(fn(i) {
-    (i.to_double() - 1000.0)
-  })
+  @quickcheck.int_bound(2000).fmap(fn(i) { i.to_double() - 1000.0 })
 }
 
 ///|
@@ -495,7 +498,11 @@ fn gen_positive_double() -> Gen[Double] {
 fn gen_scale() -> Gen[Double] {
   @quickcheck.int_bound(1000).fmap(fn(i) {
     let val = i.to_double() / 10.0
-    if val < 0.1 { 0.1 } else { val }
+    if val < 0.1 {
+      0.1
+    } else {
+      val
+    }
   })
 }
 
@@ -504,7 +511,12 @@ fn gen_scale() -> Gen[Double] {
 test "transform_x_formula" {
   let prop = @quickcheck.liftA3(
     fn(scale : Double, offset : Double, x : Double) {
-      let t = Transform::{ scale, offset_x: offset, offset_y: 0.0, flip_y: false }
+      let t = Transform::{
+        scale,
+        offset_x: offset,
+        offset_y: 0.0,
+        flip_y: false,
+      }
       let result = t.transform_x(x)
       let expected = x * scale + offset
       (result - expected).abs() < 0.0001
@@ -539,9 +551,14 @@ test "transform_y_flip_inverts" {
   let prop = @quickcheck.liftA4(
     fn(scale : Double, offset : Double, y : Double, height : Double) {
       let h = if height < 1.0 { 100.0 } else { height }
-      let t = Transform::{ scale, offset_x: 0.0, offset_y: offset, flip_y: true }
+      let t = Transform::{
+        scale,
+        offset_x: 0.0,
+        offset_y: offset,
+        flip_y: true,
+      }
       let result = t.transform_y(y, h)
-      let expected = h - (y * scale) + offset
+      let expected = h - y * scale + offset
       (result - expected).abs() < 0.0001
     },
     gen_scale(),
@@ -557,7 +574,12 @@ test "transform_y_flip_inverts" {
 test "transform_y_no_flip_preserves" {
   let prop = @quickcheck.liftA3(
     fn(scale : Double, offset : Double, y : Double) {
-      let t = Transform::{ scale, offset_x: 0.0, offset_y: offset, flip_y: false }
+      let t = Transform::{
+        scale,
+        offset_x: 0.0,
+        offset_y: offset,
+        flip_y: false,
+      }
       let result = t.transform_y(y, 100.0)
       let expected = y * scale + offset
       (result - expected).abs() < 0.0001
@@ -588,13 +610,20 @@ test "render_options_transform_x_formula" {
 
 ///|
 /// Property: RenderOptions::transform_y flips Y coordinate
+/// New formula: (bounds_max_y - y) * scale + offset_y + padding
 test "render_options_transform_y_flips" {
   let prop = @quickcheck.liftA4(
-    fn(height : Double, scale : Double, offset : Double, y : Double) {
-      let h = if height < 1.0 { 100.0 } else { height }
-      let opts = { ..RenderOptions::new(), height: h, scale, offset_y: offset }
+    fn(bounds_max_y : Double, scale : Double, offset : Double, y : Double) {
+      let bmy = if bounds_max_y < 1.0 { 100.0 } else { bounds_max_y }
+      let opts = {
+        ..RenderOptions::new(),
+        bounds_max_y: bmy,
+        scale,
+        offset_y: offset,
+        padding: 0.0,
+      }
       let result = opts.transform_y(y)
-      let expected = h - (y * scale + offset)
+      let expected = (bmy - y) * scale + offset
       (result - expected).abs() < 0.0001
     },
     gen_positive_double(),

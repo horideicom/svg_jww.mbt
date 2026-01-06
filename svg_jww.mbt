@@ -339,6 +339,8 @@ pub struct RenderOptions {
   background_color : String
   stroke_width_scale : Double
   show_print_area : Bool
+  bounds_max_y : Double // JWW座標系のmax_y（Y座標変換に使用）
+  padding : Double // パディング値
 }
 
 ///|
@@ -352,6 +354,8 @@ pub fn RenderOptions::new() -> RenderOptions {
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
     show_print_area: false,
+    bounds_max_y: 600.0,
+    padding: 0.0,
   }
 }
 
@@ -369,6 +373,29 @@ pub fn RenderOptions::with_size(
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
     show_print_area: false,
+    bounds_max_y: height,
+    padding: 0.0,
+  }
+}
+
+///|
+pub fn RenderOptions::with_bounds(
+  width : Double,
+  height : Double,
+  bounds_max_y : Double,
+  padding : Double,
+) -> RenderOptions {
+  {
+    scale: 1.0,
+    offset_x: 0.0,
+    offset_y: 0.0,
+    width,
+    height,
+    background_color: "#ffffff",
+    stroke_width_scale: 1.0,
+    show_print_area: false,
+    bounds_max_y,
+    padding,
   }
 }
 
@@ -383,6 +410,8 @@ pub fn RenderOptions::with_scale(scale : Double) -> RenderOptions {
     background_color: "#ffffff",
     stroke_width_scale: 1.0,
     show_print_area: false,
+    bounds_max_y: 600.0,
+    padding: 0.0,
   }
 }
 
@@ -394,7 +423,8 @@ pub fn RenderOptions::transform_x(self : RenderOptions, x : Double) -> Double {
 ///|
 pub fn RenderOptions::transform_y(self : RenderOptions, y : Double) -> Double {
   // Flip Y: SVG is Y-down, JWW is Y-up
-  self.height - (y * self.scale + self.offset_y)
+  // bounds_max_yを基準にY座標を反転し、paddingを加える
+  (self.bounds_max_y - y) * self.scale + self.offset_y + self.padding
 }
 
 ///|
@@ -563,9 +593,7 @@ pub fn bytes_to_base64(data : Bytes) -> String {
 
 ///|
 /// Create data URL from embedded image data
-pub fn embedded_image_to_data_url(
-  embedded_image : JwwEmbeddedImage,
-) -> String {
+pub fn embedded_image_to_data_url(embedded_image : JwwEmbeddedImage) -> String {
   let mime = image_format_to_mime(embedded_image.format)
   let base64 = bytes_to_base64(embedded_image.data)
   "data:" + mime + ";base64," + base64
