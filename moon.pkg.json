@@ -1,5 +1,23 @@
 {
   "import": [
-    "moonbitlang/quickcheck"
-  ]
+    "moonbitlang/quickcheck",
+    {
+      "path": "f4ah6o/jww_parser/core",
+      "alias": "jww_parser_core"
+    }
+  ],
+  "link": {
+    "js": {
+      "exports": [
+        "jww_to_svg",
+        "jww_parse",
+        "ParsedDocument",
+        "Bounds",
+        "LayerInfo",
+        "EntityCounts",
+        "PrintSettings"
+      ],
+      "format": "esm"
+    }
+  }
 }

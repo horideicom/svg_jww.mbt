@@ -37,7 +37,8 @@
     "build:moon": "moon build --target js",
     "build:bundle": "rolldown -c rolldown.config.mjs",
     "build:types": "mkdir -p dist && cp target/js/release/build/svg_jww_ui/svg_jww_ui.d.ts dist/index.d.ts && cp target/js/release/build/svg_jww_ui/moonbit.d.ts dist/moonbit.d.ts",
-    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:bundle && pnpm run build:types",
+    "build:copy": "cp target/js/release/build/svg_jww.js dist/svg_jww.js",
+    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:bundle && pnpm run build:types && pnpm run build:copy",
     "prepublishOnly": "pnpm run build",
     "set-version": "node scripts/sync-version.js && git add package.json moon.mod.json examples/package.json",
     "release": "node scripts/release.js"
