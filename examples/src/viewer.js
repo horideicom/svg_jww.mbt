@@ -36,13 +36,14 @@ export class JWWViewer {
     // Text features enabled (drag + font size) - default off
     this.textEnabled = false;
 
-    // Original bounds for fit
-    this.origMinX = bounds.minX;
-    this.origMaxX = bounds.maxX;
-    this.origMinY = coordTransform.transformY(bounds.maxY);
-    this.origMaxY = coordTransform.transformY(bounds.minY);
-    this.origWidth = bounds.maxX - bounds.minX;
-    this.origHeight = bounds.maxY - bounds.minY;
+    // Original bounds for fit - read from actual SVG viewBox
+    const initialViewBox = svg.getAttribute('viewBox').split(' ').map(Number);
+    this.origMinX = initialViewBox[0];
+    this.origMinY = initialViewBox[1];
+    this.origWidth = initialViewBox[2];
+    this.origHeight = initialViewBox[3];
+    this.origMaxX = this.origMinX + this.origWidth;
+    this.origMaxY = this.origMinY + this.origHeight;
 
     // Panning state
     this.isPanning = false;
@@ -488,6 +489,10 @@ export class JWWViewer {
       if (origX !== undefined) el.setAttribute('x', origX);
       if (origY !== undefined) el.setAttribute('y', origY);
     });
+    // Also reset font size
+    this.setFontSize(1.0);
+    const slider = document.getElementById('jww-font-size');
+    if (slider) slider.value = 1;
   }
 
   setTextEnabled(enabled) {
