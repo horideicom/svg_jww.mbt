@@ -64,18 +64,42 @@ fn main {
   println("")
 
   // Test 4: Text with rotation
-  println("Test 4: Text with styling")
-  let text = @lib.text_elem(
+  println("Test 4: Text with rotation")
+  let text_45 = @lib.text_elem(
     [
       @lib.attr("x", "50"),
       @lib.attr("y", "50"),
       @lib.attr("fill", "black"),
       @lib.attr("font-size", "16"),
-      @lib.style_attr("transform-origin: 50px 50px; transform: rotate(45deg);"),
+      @lib.style_attr("transform-origin: 50px 50px; transform: rotate(-45deg);"),
     ],
-    "Rotated Text",
+    "Rotated -45°",
   )
-  println(@lib.to_string(text))
+  println(@lib.to_string(text_45))
+  let text_90 = @lib.text_elem(
+    [
+      @lib.attr("x", "50"),
+      @lib.attr("y", "70"),
+      @lib.attr("fill", "blue"),
+      @lib.attr("font-size", "16"),
+      @lib.style_attr("transform-origin: 50px 70px; transform: rotate(-90deg);"),
+    ],
+    "Rotated -90°",
+  )
+  println(@lib.to_string(text_90))
+  let text_180 = @lib.text_elem(
+    [
+      @lib.attr("x", "50"),
+      @lib.attr("y", "90"),
+      @lib.attr("fill", "green"),
+      @lib.attr("font-size", "16"),
+      @lib.style_attr(
+        "transform-origin: 50px 90px; transform: rotate(-180deg);",
+      ),
+    ],
+    "Rotated -180°",
+  )
+  println(@lib.to_string(text_180))
   println("")
 
   // Test 5: Polygon

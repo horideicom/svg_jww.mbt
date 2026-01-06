@@ -42,6 +42,16 @@ fn demo_svg() -> String {
   sb.write_string(
     "<text x=\"200\" y=\"250\" text-anchor=\"middle\" font-size=\"14\" fill=\"#666\">JWW Viewer Demo</text>",
   )
+  // Rotated text samples
+  sb.write_string(
+    "<text x=\"200\" y=\"280\" text-anchor=\"middle\" font-size=\"16\" fill=\"#2563eb\" style=\"transform-origin: 200px 280px; transform: rotate(-45deg);\">Rotated -45°</text>",
+  )
+  sb.write_string(
+    "<text x=\"200\" y=\"300\" text-anchor=\"middle\" font-size=\"16\" fill=\"#2563eb\" style=\"transform-origin: 200px 300px; transform: rotate(-90deg);\">Rotated -90°</text>",
+  )
+  sb.write_string(
+    "<text x=\"200\" y=\"320\" text-anchor=\"middle\" font-size=\"16\" fill=\"#2563eb\" style=\"transform-origin: 200px 320px; transform: rotate(-135deg);\">Rotated -135°</text>",
+  )
   sb.write_string("</svg>")
   sb.to_string()
 }
@@ -72,29 +82,24 @@ fn main {
 
   // Create sample document info for demo
   let demo_doc_info = @ui.DocumentInfo::create(
-    "7.00",
-    "Demo Drawing",
-    3U,  // A3
-    420.0,
-    297.0,
-    42,  // lines
-    1,   // arcs
-    2,   // points
-    3,   // texts
-    0,   // solids
-    0,   // blocks
-    0,   // images
-    0,   // polylines
-    0.0, // print_origin_x
-    0.0, // print_origin_y
-    1.0, // print_scale
-    0U,  // print_rotation
-    16,  // layer_count
-    16,  // layer_group_count
-    0,   // embedded_image_count
+    "7.00", "Demo Drawing", 3U, // A3
+     420.0, 297.0, 42, // lines
+     1, // arcs
+     2, // points
+     3, // texts
+     0, // solids
+     0, // blocks
+     0, // images
+     0, // polylines
+     0.0, // print_origin_x
+     0.0, // print_origin_y
+     1.0, // print_scale
+     0U, // print_rotation
+     16, // layer_count
+     16, // layer_group_count
+     0, // embedded_image_count
   )
   let app_state_with_doc = app_state.with_document_info(demo_doc_info)
-
   let svg_content = demo_svg()
 
   // Render initial HTML

@@ -1,0 +1,363 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "f4ah6o/svg_jww"
+
+// Values
+pub fn attr(String, String) -> (String, String)
+
+pub fn attr_double(String, Double) -> (String, String)
+
+pub fn attr_int(String, Int) -> (String, String)
+
+pub fn bytes_to_base64(Bytes) -> String
+
+pub fn calculate_document_bounds(JwwDocument) -> BoundingBox
+
+pub fn circle(Array[(String, String)]) -> SvgElement
+
+pub fn class_attr(String) -> (String, String)
+
+pub fn cos_d(Double) -> Double
+
+pub fn ellipse(Array[(String, String)]) -> SvgElement
+
+pub fn embedded_image_to_data_url(JwwEmbeddedImage) -> String
+
+pub fn entity_bounds(JwwEntity) -> BoundingBox
+
+pub fn fill_attr(String) -> (String, String)
+
+pub fn fill_none() -> (String, String)
+
+pub fn g(Array[(String, String)], Array[SvgElement]) -> SvgElement
+
+pub fn id_attr(String) -> (String, String)
+
+pub fn image_elem(Array[(String, String)]) -> SvgElement
+
+pub fn image_format_to_mime(JwwImageFormat) -> String
+
+pub fn jww_parse(Bytes) -> ParsedDocument
+
+pub fn jww_parse_debug(Bytes, DebugOptions) -> ParsedDocument
+
+pub fn jww_to_svg(Bytes) -> String
+
+pub fn line_type_to_dasharray(LineType, Double) -> (String, String)?
+
+pub fn path(Array[(String, String)]) -> SvgElement
+
+pub fn polygon(Array[(String, String)]) -> SvgElement
+
+pub fn polyline(Array[(String, String)]) -> SvgElement
+
+pub fn rect(Array[(String, String)]) -> SvgElement
+
+pub fn render_arc(JwwArc, RenderOptions) -> SvgElement
+
+pub fn render_block(JwwBlock, RenderOptions) -> SvgElement
+
+pub fn render_document(JwwDocument, RenderOptions) -> SvgElement
+
+pub fn render_entity(JwwEntity, RenderOptions) -> SvgElement
+
+pub fn render_image(JwwImage, RenderOptions) -> SvgElement
+
+pub fn render_line(JwwLine, RenderOptions) -> SvgElement
+
+pub fn render_point(JwwPoint, RenderOptions) -> SvgElement
+
+pub fn render_polyline(JwwPolyline, RenderOptions) -> SvgElement
+
+pub fn render_print_area(JwwDocument, RenderOptions) -> SvgElement
+
+pub fn render_print_area_only(JwwDocument, RenderOptions) -> SvgElement
+
+pub fn render_solid(JwwSolid, RenderOptions) -> SvgElement
+
+pub fn render_text(JwwText, RenderOptions) -> SvgElement
+
+pub fn sin_d(Double) -> Double
+
+pub fn stroke_attr(String) -> (String, String)
+
+pub fn stroke_none() -> (String, String)
+
+pub fn stroke_width_attr(String) -> (String, String)
+
+pub fn stroke_width_double(Double) -> (String, String)
+
+pub fn style_attr(String) -> (String, String)
+
+pub fn svg(Array[(String, String)], Array[SvgElement]) -> SvgElement
+
+pub fn svg_element(String, Array[(String, String)], Array[SvgElement]) -> SvgElement
+
+pub fn svg_line(Array[(String, String)]) -> SvgElement
+
+pub fn svg_self_closing(String, Array[(String, String)]) -> SvgElement
+
+pub fn text_elem(Array[(String, String)], String) -> SvgElement
+
+pub fn to_rgb_color(Int, Int, Int) -> String
+
+pub fn to_rgba_color(Int, Int, Int, Double) -> String
+
+pub fn to_string(SvgElement) -> String
+
+pub fn to_svg_color(Int) -> String
+
+pub fn to_svg_stroke_width(Int) -> String
+
+pub fn use_ref(Array[(String, String)]) -> SvgElement
+
+// Errors
+
+// Types and methods
+pub struct BoundingBox {
+  min_x : Double
+  min_y : Double
+  max_x : Double
+  max_y : Double
+}
+pub fn BoundingBox::expand(Self, Double, Double) -> Self
+pub fn BoundingBox::height(Self) -> Double
+pub fn BoundingBox::is_valid(Self) -> Bool
+pub fn BoundingBox::new() -> Self
+pub fn BoundingBox::width(Self) -> Double
+
+pub struct Bounds {
+  min_x : Double
+  min_y : Double
+  max_x : Double
+  max_y : Double
+}
+
+pub struct DebugOptions {
+  show_bounds : Bool
+  show_axes : Bool
+  show_print_area : Bool
+}
+pub fn DebugOptions::new(Bool, Bool, Bool) -> Self
+
+pub struct EntityBase {
+  layer : Int
+  layer_group : Int
+  pen_color : Int
+  pen_width : Int
+  pen_style : Int
+  line_type : Int
+}
+pub fn EntityBase::new() -> Self
+
+pub struct EntityCounts {
+  lines : Int
+  arcs : Int
+  texts : Int
+  points : Int
+  solids : Int
+  blocks : Int
+  images : Int
+}
+
+pub struct JwwArc {
+  base : EntityBase
+  cx : Double
+  cy : Double
+  radius : Double
+  start_angle : Double
+  end_angle : Double
+  is_full : Bool
+}
+
+pub struct JwwBlock {
+  base : EntityBase
+  x : Double
+  y : Double
+  scale_x : Double
+  scale_y : Double
+  angle : Double
+  block_name : String
+}
+
+pub struct JwwDocument {
+  version : String
+  memo : String
+  version_number : Int
+  paper_size : UInt
+  drawing_width : Double
+  drawing_height : Double
+  entities : Array[JwwEntity]
+  layer_count : Int
+  layer_group_count : Int
+  print_settings : JwwPrintSettings
+  embedded_images : Array[JwwEmbeddedImage]
+}
+pub fn JwwDocument::new() -> Self
+
+pub struct JwwEmbeddedImage {
+  index : UInt
+  file_size : UInt
+  data : Bytes
+  format : JwwImageFormat
+}
+
+pub enum JwwEntity {
+  LineEnt(JwwLine)
+  ArcEnt(JwwArc)
+  PointEnt(JwwPoint)
+  TextEnt(JwwText)
+  SolidEnt(JwwSolid)
+  BlockEnt(JwwBlock)
+  PolylineEnt(JwwPolyline)
+  ImageEnt(JwwImage)
+}
+
+pub struct JwwImage {
+  base : EntityBase
+  image_path : String
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+  rotation : Double
+}
+
+pub enum JwwImageFormat {
+  Unknown
+  Jpeg
+  Png
+  Bmp
+  Gif
+}
+
+pub struct JwwLine {
+  base : EntityBase
+  x1 : Double
+  y1 : Double
+  x2 : Double
+  y2 : Double
+}
+
+pub struct JwwPoint {
+  base : EntityBase
+  x : Double
+  y : Double
+  point_type : Int
+}
+
+pub struct JwwPolyline {
+  base : EntityBase
+  points : Array[(Double, Double)]
+  is_closed : Bool
+}
+
+pub struct JwwPrintSettings {
+  origin_x : Double
+  origin_y : Double
+  scale : Double
+  rotation_setting : UInt
+}
+
+pub struct JwwSolid {
+  base : EntityBase
+  x1 : Double
+  y1 : Double
+  x2 : Double
+  y2 : Double
+  x3 : Double
+  y3 : Double
+  x4 : Double
+  y4 : Double
+  color : Int
+}
+
+pub struct JwwText {
+  base : EntityBase
+  x : Double
+  y : Double
+  text : String
+  size : Double
+  angle : Double
+  font_name : String
+}
+
+pub struct LayerInfo {
+  id : Int
+  name : String
+  entity_count : Int
+  visible : Bool
+}
+
+pub enum LineType {
+  Solid
+  Dashed
+  Dotted
+  DashDot
+  Custom(Array[Double])
+}
+
+pub struct ParsedDocument {
+  svg : String
+  bounds : Bounds
+  layers : Array[LayerInfo]
+  entity_counts : EntityCounts
+  version : String
+  paper_size : Int
+  memo : String
+  print_settings : PrintSettings
+}
+
+pub struct PrintSettings {
+  origin_x : Double
+  origin_y : Double
+  scale : Double
+  rotation_setting : Int
+}
+
+pub struct RenderOptions {
+  scale : Double
+  offset_x : Double
+  offset_y : Double
+  width : Double
+  height : Double
+  background_color : String
+  stroke_width_scale : Double
+  show_print_area : Bool
+  bounds_max_y : Double
+  padding : Double
+}
+pub fn RenderOptions::new() -> Self
+pub fn RenderOptions::transform_distance(Self, Double) -> Double
+pub fn RenderOptions::transform_x(Self, Double) -> Double
+pub fn RenderOptions::transform_y(Self, Double) -> Double
+pub fn RenderOptions::with_bounds(Double, Double, Double, Double) -> Self
+pub fn RenderOptions::with_scale(Double) -> Self
+pub fn RenderOptions::with_size(Double, Double) -> Self
+
+pub enum SvgElement {
+  Text(String)
+  ElementNode(SvgElementData)
+}
+
+pub struct SvgElementData {
+  tag : String
+  attributes : Array[(String, String)]
+  children : Array[SvgElement]
+  self_closing : Bool
+}
+
+pub struct Transform {
+  scale : Double
+  offset_x : Double
+  offset_y : Double
+  flip_y : Bool
+}
+pub fn Transform::new() -> Self
+pub fn Transform::transform_x(Self, Double) -> Double
+pub fn Transform::transform_y(Self, Double, Double) -> Double
+pub fn Transform::with_scale(Double) -> Self
+
+// Type aliases
+
+// Traits
+
