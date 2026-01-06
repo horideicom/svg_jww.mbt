@@ -9,6 +9,7 @@
     "moonbitlang/x": "0.4.38",
     "Yoorkin/ArgParser": "0.2.0"
   },
+  "preferred-target": "js",
   "readme": "README.mbt.md",
   "repository": "https://github.com/f4ah6o/svg_jww.mbt",
   "license": "AGPL-3.0",
