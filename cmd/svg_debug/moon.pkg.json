@@ -1,0 +1,21 @@
+{
+  "is-main": true,
+  "import": [
+    {
+      "path": "f4ah6o/svg_jww",
+      "alias": "lib"
+    },
+    {
+      "path": "Yoorkin/ArgParser",
+      "alias": "arg"
+    },
+    {
+      "path": "moonbitlang/x/fs",
+      "alias": "fs"
+    },
+    {
+      "path": "moonbitlang/x/sys",
+      "alias": "sys"
+    }
+  ]
+}
