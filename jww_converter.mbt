@@ -868,6 +868,26 @@ fn entity_picker_attrs(
 }
 
 ///|
+/// Convert JWW custom RGB (COLORREF) into CSS color string
+fn color_from_custom_rgb(color : UInt) -> String {
+  let mask = 0xffU
+  let r = (color & mask).to_int()
+  let g = ((color >> 8) & mask).to_int()
+  let b = ((color >> 16) & mask).to_int()
+  to_rgb_color(r, g, b)
+}
+
+///|
+/// Resolve fill color from pen color or custom RGB
+fn fill_color_from_pen(pen_color : UInt16, custom_color : UInt) -> String {
+  if pen_color == 10 {
+    color_from_custom_rgb(custom_color)
+  } else {
+    to_svg_color(pen_color.to_int())
+  }
+}
+
+///|
 /// Render a single entity to SVG element
 fn render_entity_conv(
   entity : ParserEntity,
@@ -1193,9 +1213,15 @@ fn render_solid_conv(
   entity_index : Int,
   opts : RenderOptions,
 ) -> SvgElement {
+  // JWW solids are stored as point1, point4, point2, point3 to avoid self-intersection.
+  let fill_color = fill_color_from_pen(s.base.pen_color, s.color)
   let points = s.point1_x.to_string() +
     "," +
     opts.transform_y(s.point1_y).to_string() +
+    " " +
+    s.point4_x.to_string() +
+    "," +
+    opts.transform_y(s.point4_y).to_string() +
     " " +
     s.point2_x.to_string() +
     "," +
@@ -1203,11 +1229,7 @@ fn render_solid_conv(
     " " +
     s.point3_x.to_string() +
     "," +
-    opts.transform_y(s.point3_y).to_string() +
-    " " +
-    s.point4_x.to_string() +
-    "," +
-    opts.transform_y(s.point4_y).to_string()
+    opts.transform_y(s.point3_y).to_string()
   let picker_attrs = entity_picker_attrs("solid", entity_index, s.base) +
     [
       attr_double("data-entity-point1-x", s.point1_x),
@@ -1222,7 +1244,7 @@ fn render_solid_conv(
     ]
   polygon([
     attr("points", points),
-    fill_attr(to_svg_color(s.base.pen_color.to_int())),
+    fill_attr(fill_color),
     stroke_none(),
   ] + picker_attrs)
 }
@@ -1238,7 +1260,7 @@ fn render_arc_solid_conv(
   let cy = opts.transform_y(a.center_y)
   let (rx, ry) = arc_radii(a.radius, a.flatness)
   let rotation = tilt_to_svg_degrees(-a.tilt_angle)
-  let color = to_svg_color(a.base.pen_color.to_int())
+  let color = fill_color_from_pen(a.base.pen_color, a.color)
   let picker_attrs = entity_picker_attrs("arc_solid", entity_index, a.base) +
     [
       attr_double("data-entity-center-x", a.center_x),
