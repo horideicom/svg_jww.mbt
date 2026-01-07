@@ -504,6 +504,26 @@ pub enum LineType {
   Dotted
   DashDot
   Custom(Array[Double]) // Dash pattern in pixels
+} derive(Show)
+
+///|
+/// Convert JWW pen_style value to LineType
+/// pen_style: 1=実線, 2=点線1, 3=点線2, 4=一点鎖線1, 5=一点鎖線2,
+///            6=二点鎖線1, 7=二点鎖線2, 8=補助線
+/// 0や未知値は実線扱い
+pub fn pen_style_to_line_type(pen_style : Int) -> LineType {
+  match pen_style {
+    0 => LineType::Solid
+    1 => LineType::Solid
+    2 => LineType::Custom([1.0, 2.0]) // 点線1
+    3 => LineType::Custom([2.0, 2.0]) // 点線2
+    4 => LineType::Custom([8.0, 3.0, 1.0, 3.0]) // 一点鎖線1
+    5 => LineType::Custom([12.0, 3.0, 2.0, 3.0]) // 一点鎖線2
+    6 => LineType::Custom([8.0, 3.0, 1.0, 3.0, 1.0, 3.0]) // 二点鎖線1
+    7 => LineType::Custom([12.0, 3.0, 2.0, 3.0, 2.0, 3.0]) // 二点鎖線2
+    8 => LineType::Custom([1.0, 4.0]) // 補助線
+    _ => LineType::Solid
+  }
 }
 
 ///|

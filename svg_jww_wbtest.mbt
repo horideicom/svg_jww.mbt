@@ -136,11 +136,40 @@ test "render_options_transform" {
 }
 
 ///|
+test "pen_style_to_line_type" {
+  // 0 = 実線扱い
+  inspect(pen_style_to_line_type(0), content="Solid")
+  // 1 = 実線
+  inspect(pen_style_to_line_type(1), content="Solid")
+  // 2 = 点線1
+  inspect(pen_style_to_line_type(2), content="Custom([1, 2])")
+  // 3 = 点線2
+  inspect(pen_style_to_line_type(3), content="Custom([2, 2])")
+  // 4 = 一点鎖線1
+  inspect(pen_style_to_line_type(4), content="Custom([8, 3, 1, 3])")
+  // 5 = 一点鎖線2
+  inspect(pen_style_to_line_type(5), content="Custom([12, 3, 2, 3])")
+  // 6 = 二点鎖線1
+  inspect(pen_style_to_line_type(6), content="Custom([8, 3, 1, 3, 1, 3])")
+  // 7 = 二点鎖線2
+  inspect(pen_style_to_line_type(7), content="Custom([12, 3, 2, 3, 2, 3])")
+  // 8 = 補助線
+  inspect(pen_style_to_line_type(8), content="Custom([1, 4])")
+  // 未知の値は実線
+  inspect(pen_style_to_line_type(99), content="Solid")
+}
+
+///|
 test "line_type_dasharray" {
-  // Note: LineType variants are not directly constructible in tests
-  // This test checks the function signature
-  // In practice, these would be tested through integration tests
-  inspect("LineType", content="LineType")
+  let scale = 1.0
+  // Solid returns None
+  inspect(line_type_to_dasharray(LineType::Solid, scale), content="None")
+  // Custom pattern
+  let custom = LineType::Custom([5.0, 3.0])
+  inspect(line_type_to_dasharray(custom, scale), content="Some((\"stroke-dasharray\", \"5,3\"))")
+  // With scale
+  let custom2 = LineType::Custom([5.0, 3.0])
+  inspect(line_type_to_dasharray(custom2, 2.0), content="Some((\"stroke-dasharray\", \"10,6\"))")
 }
 
 ///|
