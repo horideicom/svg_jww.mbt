@@ -562,7 +562,7 @@ fn render_svg_conv(
     attr_double("y", 0.0),
     attr_double("width", opts.width),
     attr_double("height", opts.height),
-    fill_attr("#ffffff"),
+    fill_attr("#000000"),
   ])
 
   // Build children array
@@ -911,12 +911,8 @@ fn render_entity_conv(
 fn stroke_width_min(pen_width : UInt16) -> Double {
   let pw = pen_width.to_int()
   let base = if pw <= 0 { 1 } else { pw }
-  let w = base * 50 / 100
-  if w < 50 {
-    50.0
-  } else {
-    w.to_double()
-  }
+  let w = base * 10
+  w.to_double()
 }
 
 ///|

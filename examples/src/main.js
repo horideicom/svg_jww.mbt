@@ -73,7 +73,7 @@ async function loadJWWFile(file) {
 
     // Render canvas with SVG
     app.innerHTML = `
-      <div id="jww-canvas" style="width: 100%; height: 100vh; position: relative; overflow: hidden; background: white;">
+      <div id="jww-canvas" style="width: 100%; height: 100vh; position: relative; overflow: hidden; background: #000000;">
         ${svgContent}
       </div>
     `;
