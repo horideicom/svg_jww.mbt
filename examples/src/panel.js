@@ -383,6 +383,17 @@ export function renderFloatingPanelWithPrintArea(layerGroups, showPrintArea, jww
               <span>Blocks: ${jwwData.entity_counts.blocks}</span>
               <span>Images: ${jwwData.entity_counts.images}</span>
             </div>
+            <div style="margin-top: 8px; font-size: 11px; color: #888;">選択中</div>
+            <div id="jww-selected-entity" style="font-size: 11px; color: #666;">
+              <div id="jww-selected-entity-empty" style="color: #999;">未選択</div>
+              <div id="jww-selected-entity-details" style="
+                display: none;
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
+                max-height: 120px;
+                overflow-y: auto;
+              "></div>
+            </div>
             ${jwwData.print_settings ? `
               <div style="margin-top: 8px; font-size: 11px; color: #888;">印刷設定</div>
               <div style="display: flex; justify-content: space-between; font-size: 11px;">

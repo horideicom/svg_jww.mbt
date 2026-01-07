@@ -534,9 +534,11 @@ fn render_svg_conv(
 
       // Filter entities for this layer
       let mut entity_elems = []
-      for entity in doc.entities {
+      let total_entities = doc.entities.length()
+      for i in 0..<total_entities {
+        let entity = doc.entities[i]
         if get_entity_layer_conv(entity) == layer_id {
-          let elem = render_entity_conv(entity, opts)
+          let elem = render_entity_conv(entity, i, opts)
           entity_elems = entity_elems + [elem]
         }
       }
@@ -846,20 +848,41 @@ fn get_entity_layer_conv(entity : ParserEntity) -> Int {
 }
 
 ///|
+/// Build data attributes for entity picking
+fn entity_picker_attrs(
+  entity_type : String,
+  entity_index : Int,
+  base : @jww_parser_core.EntityBase,
+) -> Array[(String, String)] {
+  [
+    attr("data-entity-index", entity_index.to_string()),
+    attr("data-entity-type", entity_type),
+    attr("data-entity-layer", base.layer.to_string()),
+    attr("data-entity-layer-group", base.layer_group.to_string()),
+    attr("data-entity-group", base.group.to_string()),
+    attr("data-entity-pen-style", base.pen_style.to_int().to_string()),
+    attr("data-entity-pen-color", base.pen_color.to_string()),
+    attr("data-entity-pen-width", base.pen_width.to_string()),
+    attr("data-entity-flag", base.flag.to_string()),
+  ]
+}
+
+///|
 /// Render a single entity to SVG element
 fn render_entity_conv(
   entity : ParserEntity,
+  entity_index : Int,
   opts : RenderOptions,
 ) -> SvgElement {
   match entity {
-    ParserEntity::Line(l) => render_line_conv(l, opts)
-    ParserEntity::Arc(a) => render_arc_conv(a, opts)
-    ParserEntity::Point(p) => render_point_conv(p, opts)
-    ParserEntity::Text(t) => render_text_conv(t, opts)
-    ParserEntity::Solid(s) => render_solid_conv(s, opts)
-    ParserEntity::Block(b) => render_block_conv(b, opts)
-    ParserEntity::Image(i) => render_image_conv(i, opts)
-    ParserEntity::ArcSolid(a) => render_arc_solid_conv(a, opts)
+    ParserEntity::Line(l) => render_line_conv(l, entity_index, opts)
+    ParserEntity::Arc(a) => render_arc_conv(a, entity_index, opts)
+    ParserEntity::Point(p) => render_point_conv(p, entity_index, opts)
+    ParserEntity::Text(t) => render_text_conv(t, entity_index, opts)
+    ParserEntity::Solid(s) => render_solid_conv(s, entity_index, opts)
+    ParserEntity::Block(b) => render_block_conv(b, entity_index, opts)
+    ParserEntity::Image(i) => render_image_conv(i, entity_index, opts)
+    ParserEntity::ArcSolid(a) => render_arc_solid_conv(a, entity_index, opts)
   }
 }
 
@@ -927,10 +950,21 @@ fn ellipse_extents(rx : Double, ry : Double, tilt : Double) -> (Double, Double) 
 
 ///|
 /// Render line entity
-fn render_line_conv(l : ParserLine, opts : RenderOptions) -> SvgElement {
+fn render_line_conv(
+  l : ParserLine,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let stroke_w = stroke_width_min(l.base.pen_width)
   let line_type = pen_style_to_line_type(l.base.pen_style.to_int())
   let scale = stroke_w / 100.0
+  let picker_attrs = entity_picker_attrs("line", entity_index, l.base) +
+    [
+      attr_double("data-entity-start-x", l.start_x),
+      attr_double("data-entity-start-y", l.start_y),
+      attr_double("data-entity-end-x", l.end_x),
+      attr_double("data-entity-end-y", l.end_y),
+    ]
   let base_attrs = [
     attr_double("x1", l.start_x),
     attr_double("y1", opts.transform_y(l.start_y)),
@@ -939,7 +973,7 @@ fn render_line_conv(l : ParserLine, opts : RenderOptions) -> SvgElement {
     stroke_attr(to_svg_color(l.base.pen_color.to_int())),
     stroke_width_double(scale),
     fill_none(),
-  ]
+  ] + picker_attrs
   match line_type_to_dasharray(line_type, scale) {
     Some(dash_attr) => svg_line(base_attrs + [dash_attr])
     None => svg_line(base_attrs)
@@ -948,15 +982,33 @@ fn render_line_conv(l : ParserLine, opts : RenderOptions) -> SvgElement {
 
 ///|
 /// Render arc entity
-fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
+fn render_arc_conv(
+  a : ParserArc,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let cx = a.center_x
   let cy = opts.transform_y(a.center_y)
   let (rx, ry) = arc_radii(a.radius, a.flatness)
-  let rotation = tilt_to_svg_degrees(a.tilt_angle)
+  let rotation = tilt_to_svg_degrees(-a.tilt_angle)
   let color = to_svg_color(a.base.pen_color.to_int())
   let stroke_w = stroke_width_min(a.base.pen_width)
   let line_type = pen_style_to_line_type(a.base.pen_style.to_int())
   let scale = stroke_w / 100.0
+  let picker_attrs = entity_picker_attrs("arc", entity_index, a.base) +
+    [
+      attr_double("data-entity-center-x", a.center_x),
+      attr_double("data-entity-center-y", a.center_y),
+      attr_double("data-entity-radius", a.radius),
+      attr_double("data-entity-start-angle", a.start_angle),
+      attr_double("data-entity-arc-angle", a.arc_angle),
+      attr_double("data-entity-tilt-angle", a.tilt_angle),
+      attr_double("data-entity-flatness", a.flatness),
+      attr(
+        "data-entity-is-full-circle",
+        if a.is_full_circle { "true" } else { "false" },
+      ),
+    ]
   if a.is_full_circle {
     if a.flatness == 1.0 {
       let base_attrs = [
@@ -966,7 +1018,7 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
         fill_none(),
         stroke_attr(color),
         stroke_width_double(scale),
-      ]
+      ] + picker_attrs
       match line_type_to_dasharray(line_type, scale) {
         Some(dash_attr) => circle(base_attrs + [dash_attr])
         None => circle(base_attrs)
@@ -980,7 +1032,7 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
         fill_none(),
         stroke_attr(color),
         stroke_width_double(scale),
-      ]
+      ] + picker_attrs
       let ellipse_attrs = if a.tilt_angle != 0.0 {
         base_attrs +
         [
@@ -1028,30 +1080,30 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
     let y2 = opts.transform_y(y2_raw)
     let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
     let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
-    let path_d = "M " +
-      x1.to_string() +
-      " " +
-      y1.to_string() +
-      " A " +
-      rx.to_string() +
-      " " +
-      ry.to_string() +
-      " " +
-      rotation.to_string() +
-      " " +
-      large_arc.to_string() +
-      " " +
-      sweep.to_string() +
-      " " +
-      x2.to_string() +
-      " " +
-      y2.to_string()
+      let path_d = "M " +
+        x1.to_string() +
+        " " +
+        y1.to_string() +
+        " A " +
+        rx.to_string() +
+        " " +
+        ry.to_string() +
+        " " +
+        rotation.to_string() +
+        " " +
+        large_arc.to_string() +
+        " " +
+        sweep.to_string() +
+        " " +
+        x2.to_string() +
+        " " +
+        y2.to_string()
     let base_attrs = [
       attr("d", path_d),
       fill_none(),
       stroke_attr(color),
       stroke_width_double(scale),
-    ]
+    ] + picker_attrs
     match line_type_to_dasharray(line_type, scale) {
       Some(dash_attr) => path(base_attrs + [dash_attr])
       None => path(base_attrs)
@@ -1061,18 +1113,35 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
 
 ///|
 /// Render point entity
-fn render_point_conv(p : ParserPoint, opts : RenderOptions) -> SvgElement {
+fn render_point_conv(
+  p : ParserPoint,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
+  let picker_attrs = entity_picker_attrs("point", entity_index, p.base) +
+    [
+      attr_double("data-entity-x", p.x),
+      attr_double("data-entity-y", p.y),
+      attr("data-entity-code", p.code.to_string()),
+      attr_double("data-entity-angle", p.angle),
+      attr_double("data-entity-scale", p.scale),
+      attr("data-entity-is-temporary", if p.is_temporary { "true" } else { "false" }),
+    ]
   circle([
     attr_double("cx", p.x),
     attr_double("cy", opts.transform_y(p.y)),
     attr_double("r", 2.0),
     fill_attr(to_svg_color(p.base.pen_color.to_int())),
-  ])
+  ] + picker_attrs)
 }
 
 ///|
 /// Render text entity with rotation support
-fn render_text_conv(t : ParserText, opts : RenderOptions) -> SvgElement {
+fn render_text_conv(
+  t : ParserText,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let x = t.start_x
   let y = opts.transform_y(t.start_y)
   let font_size = t.size_y.abs()
@@ -1085,6 +1154,20 @@ fn render_text_conv(t : ParserText, opts : RenderOptions) -> SvgElement {
     "px; transform: rotate(" +
     (-angle).to_string() +
     "deg);"
+  let picker_attrs = entity_picker_attrs("text", entity_index, t.base) +
+    [
+      attr_double("data-entity-start-x", t.start_x),
+      attr_double("data-entity-start-y", t.start_y),
+      attr_double("data-entity-end-x", t.end_x),
+      attr_double("data-entity-end-y", t.end_y),
+      attr("data-entity-text-type", t.text_type.to_string()),
+      attr_double("data-entity-size-x", t.size_x),
+      attr_double("data-entity-size-y", t.size_y),
+      attr_double("data-entity-spacing", t.spacing),
+      attr_double("data-entity-angle", t.angle),
+      attr("data-entity-font-name", t.font_name),
+      attr("data-entity-text", t.content),
+    ]
   text_elem(
     [
       attr_double("x", x),
@@ -1095,14 +1178,18 @@ fn render_text_conv(t : ParserText, opts : RenderOptions) -> SvgElement {
       attr("font-family", "sans-serif"),
       attr("class", "jww-text"),
       style_attr(transform),
-    ],
+    ] + picker_attrs,
     t.content,
   )
 }
 
 ///|
 /// Render solid (filled polygon) entity
-fn render_solid_conv(s : ParserSolid, opts : RenderOptions) -> SvgElement {
+fn render_solid_conv(
+  s : ParserSolid,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let points = s.point1_x.to_string() +
     "," +
     opts.transform_y(s.point1_y).to_string() +
@@ -1118,21 +1205,49 @@ fn render_solid_conv(s : ParserSolid, opts : RenderOptions) -> SvgElement {
     s.point4_x.to_string() +
     "," +
     opts.transform_y(s.point4_y).to_string()
+  let picker_attrs = entity_picker_attrs("solid", entity_index, s.base) +
+    [
+      attr_double("data-entity-point1-x", s.point1_x),
+      attr_double("data-entity-point1-y", s.point1_y),
+      attr_double("data-entity-point2-x", s.point2_x),
+      attr_double("data-entity-point2-y", s.point2_y),
+      attr_double("data-entity-point3-x", s.point3_x),
+      attr_double("data-entity-point3-y", s.point3_y),
+      attr_double("data-entity-point4-x", s.point4_x),
+      attr_double("data-entity-point4-y", s.point4_y),
+      attr("data-entity-color", s.color.to_string()),
+    ]
   polygon([
     attr("points", points),
     fill_attr(to_svg_color(s.base.pen_color.to_int())),
     stroke_none(),
-  ])
+  ] + picker_attrs)
 }
 
 ///|
 /// Render arc solid entity (filled arc/circle)
-fn render_arc_solid_conv(a : @jww_parser_core.ArcSolid, opts : RenderOptions) -> SvgElement {
+fn render_arc_solid_conv(
+  a : @jww_parser_core.ArcSolid,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let cx = a.center_x
   let cy = opts.transform_y(a.center_y)
   let (rx, ry) = arc_radii(a.radius, a.flatness)
-  let rotation = tilt_to_svg_degrees(a.tilt_angle)
+  let rotation = tilt_to_svg_degrees(-a.tilt_angle)
   let color = to_svg_color(a.base.pen_color.to_int())
+  let picker_attrs = entity_picker_attrs("arc_solid", entity_index, a.base) +
+    [
+      attr_double("data-entity-center-x", a.center_x),
+      attr_double("data-entity-center-y", a.center_y),
+      attr_double("data-entity-radius", a.radius),
+      attr_double("data-entity-flatness", a.flatness),
+      attr_double("data-entity-tilt-angle", a.tilt_angle),
+      attr_double("data-entity-start-angle", a.start_angle),
+      attr_double("data-entity-arc-angle", a.arc_angle),
+      attr_double("data-entity-solid-param", a.solid_param),
+      attr("data-entity-color", a.color.to_string()),
+    ]
   // For full circle solid, render as filled circle
   if a.arc_angle.abs() >= 6.28 {
     if a.flatness == 1.0 {
@@ -1142,7 +1257,7 @@ fn render_arc_solid_conv(a : @jww_parser_core.ArcSolid, opts : RenderOptions) ->
         attr_double("r", rx),
         fill_attr(color),
         stroke_none(),
-      ])
+      ] + picker_attrs)
     } else {
       let base_attrs = [
         attr_double("cx", cx),
@@ -1151,7 +1266,7 @@ fn render_arc_solid_conv(a : @jww_parser_core.ArcSolid, opts : RenderOptions) ->
         attr_double("ry", ry),
         fill_attr(color),
         stroke_none(),
-      ]
+      ] + picker_attrs
       let ellipse_attrs = if a.tilt_angle != 0.0 {
         base_attrs +
         [
@@ -1197,23 +1312,36 @@ fn render_arc_solid_conv(a : @jww_parser_core.ArcSolid, opts : RenderOptions) ->
     let y2 = opts.transform_y(y2_raw)
     let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
     let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
-    let path_d = "M " + cx.to_string() + " " + cy.to_string() +
-      " L " + x1.to_string() + " " + y1.to_string() +
-      " A " + rx.to_string() + " " + ry.to_string() +
-      " " + rotation.to_string() + " " + large_arc.to_string() +
-      " " + sweep.to_string() +
-      " " + x2.to_string() + " " + y2.to_string() + " Z"
+      let path_d = "M " + cx.to_string() + " " + cy.to_string() +
+        " L " + x1.to_string() + " " + y1.to_string() +
+        " A " + rx.to_string() + " " + ry.to_string() +
+        " " + rotation.to_string() + " " + large_arc.to_string() +
+        " " + sweep.to_string() +
+        " " + x2.to_string() + " " + y2.to_string() + " Z"
     path([
       attr("d", path_d),
       fill_attr(color),
       stroke_none(),
-    ])
+    ] + picker_attrs)
   }
 }
 
 ///|
 /// Render block entity
-fn render_block_conv(b : ParserBlock, opts : RenderOptions) -> SvgElement {
+fn render_block_conv(
+  b : ParserBlock,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
+  let picker_attrs = entity_picker_attrs("block", entity_index, b.base) +
+    [
+      attr_double("data-entity-ref-x", b.ref_x),
+      attr_double("data-entity-ref-y", b.ref_y),
+      attr_double("data-entity-scale-x", b.scale_x),
+      attr_double("data-entity-scale-y", b.scale_y),
+      attr_double("data-entity-rotation", b.rotation),
+      attr("data-entity-def-number", b.def_number.to_string()),
+    ]
   text_elem(
     [
       attr_double("x", b.ref_x),
@@ -1221,16 +1349,29 @@ fn render_block_conv(b : ParserBlock, opts : RenderOptions) -> SvgElement {
       attr("fill", "#999"),
       attr("font-size", "10"),
       style_attr("opacity: 0.5;"),
-    ],
+    ] + picker_attrs,
     "[Block " + b.def_number.to_string() + "]",
   )
 }
 
 ///|
 /// Render image entity
-fn render_image_conv(i : ParserImage, opts : RenderOptions) -> SvgElement {
+fn render_image_conv(
+  i : ParserImage,
+  entity_index : Int,
+  opts : RenderOptions,
+) -> SvgElement {
   let x = i.x
   let y = opts.transform_y(i.y)
+  let picker_attrs = entity_picker_attrs("image", entity_index, i.base) +
+    [
+      attr_double("data-entity-x", i.x),
+      attr_double("data-entity-y", i.y),
+      attr_double("data-entity-width", i.width),
+      attr_double("data-entity-height", i.height),
+      attr_double("data-entity-rotation", i.rotation),
+      attr("data-entity-image-path", i.image_path),
+    ]
   let base_attrs = [
     attr_double("x", x),
     attr_double("y", y),
@@ -1240,7 +1381,7 @@ fn render_image_conv(i : ParserImage, opts : RenderOptions) -> SvgElement {
     attr("class", "jww-image"),
     attr("data-image-path", i.image_path),
     attr("data-status", "loading"),
-  ]
+  ] + picker_attrs
   let final_attrs = if i.rotation != 0.0 {
     base_attrs +
     [

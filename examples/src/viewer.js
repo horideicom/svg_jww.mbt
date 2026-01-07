@@ -49,6 +49,7 @@ export class JWWViewer {
     this.isPanning = false;
     this.lastMouseX = 0;
     this.lastMouseY = 0;
+    this.didPan = false;
 
     // Touch state for pan
     this.isTouchPanning = false;
@@ -66,14 +67,20 @@ export class JWWViewer {
     this.dragStartY = 0;
     this.textOrigX = 0;
     this.textOrigY = 0;
+    this.didDragText = false;
 
     // Display options state
     this.showGrid = false;
     this.showRuler = false;
     this.showPrintArea = false;
 
+    // Picker state
+    this.selectedElement = null;
+    this.selectionOverlay = null;
+
     this.setupEvents();
     this.setupTextDrag();
+    this.setupPicker();
     this.setTextEnabled(false);  // Initialize with text disabled
     this.updateViewBox();
   }
@@ -100,6 +107,7 @@ export class JWWViewer {
       }
       if (e.button === 0) {
         this.isPanning = true;
+        this.didPan = false;
         this.lastMouseX = e.clientX;
         this.lastMouseY = e.clientY;
         this.svg.style.cursor = 'grabbing';
@@ -118,6 +126,7 @@ export class JWWViewer {
 
         const dx = (e.clientX - this.dragStartX) * scale;
         const dy = (e.clientY - this.dragStartY) * scale;
+        if (dx !== 0 || dy !== 0) this.didDragText = true;
 
         const newX = this.textOrigX + dx;
         const newY = this.textOrigY + dy;
@@ -140,6 +149,7 @@ export class JWWViewer {
       if (this.isPanning) {
         const dx = e.clientX - this.lastMouseX;
         const dy = e.clientY - this.lastMouseY;
+        if (dx !== 0 || dy !== 0) this.didPan = true;
 
         const rect = this.svg.getBoundingClientRect();
         const viewBox = this.svg.getAttribute('viewBox').split(' ').map(Number);
@@ -179,6 +189,7 @@ export class JWWViewer {
 
         const dx = (e.touches[0].clientX - this.dragStartX) * scale;
         const dy = (e.touches[0].clientY - this.dragStartY) * scale;
+        if (dx !== 0 || dy !== 0) this.didDragText = true;
 
         const newX = this.textOrigX + dx;
         const newY = this.textOrigY + dy;
@@ -242,6 +253,7 @@ export class JWWViewer {
           return;
         }
         this.isTouchPanning = true;
+        this.didPan = false;
         this.lastTouchX = touch.clientX;
         this.lastTouchY = touch.clientY;
       } else if (e.touches.length === 2) {
@@ -261,6 +273,7 @@ export class JWWViewer {
         const touch = e.touches[0];
         const dx = touch.clientX - this.lastTouchX;
         const dy = touch.clientY - this.lastTouchY;
+        if (dx !== 0 || dy !== 0) this.didPan = true;
 
         const rect = this.svg.getBoundingClientRect();
         const viewBox = this.svg.getAttribute('viewBox').split(' ').map(Number);
@@ -455,6 +468,7 @@ export class JWWViewer {
 
         this.isDraggingText = true;
         this.draggedText = textEl;
+        this.didDragText = false;
         this.dragStartX = e.clientX;
         this.dragStartY = e.clientY;
         this.textOrigX = parseFloat(textEl.getAttribute('x')) || 0;
@@ -472,6 +486,7 @@ export class JWWViewer {
 
           this.isDraggingText = true;
           this.draggedText = textEl;
+          this.didDragText = false;
           this.dragStartX = e.touches[0].clientX;
           this.dragStartY = e.touches[0].clientY;
           this.textOrigX = parseFloat(textEl.getAttribute('x')) || 0;
@@ -479,6 +494,207 @@ export class JWWViewer {
         }
       }, { passive: false });
     });
+  }
+
+  setupPicker() {
+    const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    overlay.setAttribute('id', 'jww-selection-overlay');
+    overlay.setAttribute('fill', 'none');
+    overlay.setAttribute('stroke', '#ef4444');
+    overlay.setAttribute('stroke-width', '1');
+    overlay.setAttribute('stroke-dasharray', '4 3');
+    overlay.setAttribute('pointer-events', 'none');
+    overlay.style.display = 'none';
+    this.selectionOverlay = overlay;
+    this.svg.appendChild(overlay);
+
+    this.svg.addEventListener('click', (e) => {
+      this.handlePick(e);
+    });
+  }
+
+  handlePick(e) {
+    if (this.didPan || this.didDragText || this.isPanning || this.isDraggingText) {
+      this.didPan = false;
+      this.didDragText = false;
+      return;
+    }
+
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+
+    const entityEl = target.closest('[data-entity-index]');
+    if (!entityEl || !this.svg.contains(entityEl)) {
+      this.clearSelection();
+      return;
+    }
+
+    this.selectEntity(entityEl);
+  }
+
+  selectEntity(element) {
+    this.selectedElement = element;
+    this.updateSelectionOverlay(element);
+    this.updateSelectionPanel(element);
+  }
+
+  clearSelection() {
+    this.selectedElement = null;
+    if (this.selectionOverlay) {
+      this.selectionOverlay.style.display = 'none';
+    }
+    this.updateSelectionPanel(null);
+  }
+
+  updateSelectionOverlay(element) {
+    if (!this.selectionOverlay) return;
+    const bbox = element.getBBox();
+    const padding = 2;
+    this.selectionOverlay.setAttribute('x', bbox.x - padding);
+    this.selectionOverlay.setAttribute('y', bbox.y - padding);
+    this.selectionOverlay.setAttribute('width', bbox.width + padding * 2);
+    this.selectionOverlay.setAttribute('height', bbox.height + padding * 2);
+    this.selectionOverlay.style.display = 'inline';
+  }
+
+  updateSelectionPanel(element) {
+    const emptyEl = document.getElementById('jww-selected-entity-empty');
+    const detailsEl = document.getElementById('jww-selected-entity-details');
+    if (!emptyEl || !detailsEl) return;
+
+    detailsEl.textContent = '';
+    if (!element) {
+      emptyEl.style.display = 'block';
+      detailsEl.style.display = 'none';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    detailsEl.style.display = 'grid';
+
+    const rows = this.buildEntityRows(element);
+    rows.forEach(({ label, value }) => {
+      const labelEl = document.createElement('div');
+      labelEl.textContent = label;
+      labelEl.style.color = '#888';
+
+      const valueEl = document.createElement('div');
+      valueEl.textContent = value;
+      valueEl.style.textAlign = 'right';
+
+      detailsEl.appendChild(labelEl);
+      detailsEl.appendChild(valueEl);
+    });
+  }
+
+  buildEntityRows(element) {
+    const data = element.dataset || {};
+    const rows = [];
+    const addRow = (label, value) => {
+      if (value === undefined || value === '') return;
+      rows.push({ label, value: String(value) });
+    };
+    const addAngleRad = (label, value) => {
+      if (value === undefined || value === '') return;
+      const num = Number(value);
+      if (!Number.isFinite(num)) {
+        addRow(label, value);
+        return;
+      }
+      const deg = num * 180 / Math.PI;
+      const radText = num.toFixed(6).replace(/\.?0+$/, '');
+      const degText = deg.toFixed(2).replace(/\.?0+$/, '');
+      addRow(label, `${radText} rad (${degText} deg)`);
+    };
+    const addTextValue = (label, value) => {
+      if (value === undefined || value === '') return;
+      const text = String(value).replace(/\s+/g, ' ').trim();
+      const maxLen = 80;
+      const clipped = text.length > maxLen ? text.slice(0, maxLen) + '...' : text;
+      addRow(label, clipped);
+    };
+
+    const type = data.entityType;
+    addRow('種別', type);
+    addRow('ID', data.entityIndex);
+    addRow('レイヤ', data.entityLayer);
+    addRow('レイヤG', data.entityLayerGroup);
+    addRow('グループ', data.entityGroup);
+    addRow('線種', data.entityPenStyle);
+    addRow('色', data.entityPenColor);
+    addRow('線幅', data.entityPenWidth);
+    addRow('フラグ', data.entityFlag);
+
+    if (type === 'line') {
+      addRow('始点X', data.entityStartX);
+      addRow('始点Y', data.entityStartY);
+      addRow('終点X', data.entityEndX);
+      addRow('終点Y', data.entityEndY);
+    } else if (type === 'arc') {
+      addRow('中心X', data.entityCenterX);
+      addRow('中心Y', data.entityCenterY);
+      addRow('半径', data.entityRadius);
+      addRow('扁平率', data.entityFlatness);
+      addAngleRad('傾き角', data.entityTiltAngle);
+      addAngleRad('開始角', data.entityStartAngle);
+      addAngleRad('円弧角', data.entityArcAngle);
+      addRow('全円', data.entityIsFullCircle);
+    } else if (type === 'point') {
+      addRow('X', data.entityX);
+      addRow('Y', data.entityY);
+      addRow('コード', data.entityCode);
+      addRow('角度', data.entityAngle);
+      addRow('スケール', data.entityScale);
+      addRow('一時点', data.entityIsTemporary);
+    } else if (type === 'text') {
+      addRow('始点X', data.entityStartX);
+      addRow('始点Y', data.entityStartY);
+      addRow('終点X', data.entityEndX);
+      addRow('終点Y', data.entityEndY);
+      addRow('文字種別', data.entityTextType);
+      addRow('サイズX', data.entitySizeX);
+      addRow('サイズY', data.entitySizeY);
+      addRow('間隔', data.entitySpacing);
+      addRow('角度', data.entityAngle);
+      addRow('フォント', data.entityFontName);
+      addTextValue('文字列', data.entityText || element.textContent || '');
+    } else if (type === 'solid') {
+      addRow('点1X', data.entityPoint1X);
+      addRow('点1Y', data.entityPoint1Y);
+      addRow('点2X', data.entityPoint2X);
+      addRow('点2Y', data.entityPoint2Y);
+      addRow('点3X', data.entityPoint3X);
+      addRow('点3Y', data.entityPoint3Y);
+      addRow('点4X', data.entityPoint4X);
+      addRow('点4Y', data.entityPoint4Y);
+      addRow('塗色', data.entityColor);
+    } else if (type === 'arc_solid') {
+      addRow('中心X', data.entityCenterX);
+      addRow('中心Y', data.entityCenterY);
+      addRow('半径', data.entityRadius);
+      addRow('扁平率', data.entityFlatness);
+      addAngleRad('傾き角', data.entityTiltAngle);
+      addAngleRad('開始角', data.entityStartAngle);
+      addAngleRad('円弧角', data.entityArcAngle);
+      addRow('ソリッド', data.entitySolidParam);
+      addRow('塗色', data.entityColor);
+    } else if (type === 'block') {
+      addRow('参照X', data.entityRefX);
+      addRow('参照Y', data.entityRefY);
+      addRow('倍率X', data.entityScaleX);
+      addRow('倍率Y', data.entityScaleY);
+      addRow('回転', data.entityRotation);
+      addRow('定義番号', data.entityDefNumber);
+    } else if (type === 'image') {
+      addRow('X', data.entityX);
+      addRow('Y', data.entityY);
+      addRow('幅', data.entityWidth);
+      addRow('高さ', data.entityHeight);
+      addRow('回転', data.entityRotation);
+      addTextValue('パス', data.entityImagePath);
+    }
+
+    return rows;
   }
 
   resetTextPositions() {
