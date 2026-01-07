@@ -528,26 +528,13 @@ pub fn pen_style_to_line_type(pen_style : Int) -> LineType {
 
 ///|
 /// Math utilities for trigonometric functions
-/// Approximate cosine using Taylor series (angle in radians)
 pub fn cos_d(x : Double) -> Double {
-  // Normalize to [-2π, 2π]
-  let pi = 3.141592653589793
-  let two_pi = 2.0 * pi
-  let n = (x / two_pi).to_int()
-  let x_norm = x - n.to_double() * two_pi
-
-  // Taylor series: cos(x) = 1 - x²/2! + x⁴/4! - x⁶/6! + ...
-  let x2 = x_norm * x_norm
-  let x4 = x2 * x2
-  let x6 = x4 * x2
-  1.0 - x2 / 2.0 + x4 / 24.0 - x6 / 720.0
+  @math.cos(x)
 }
 
 ///|
-/// Approximate sine using Taylor series (angle in radians)
 pub fn sin_d(x : Double) -> Double {
-  // sin(x) = cos(x - π/2)
-  cos_d(x - 1.570796326794897) // π/2
+  @math.sin(x)
 }
 
 ///|

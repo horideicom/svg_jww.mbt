@@ -534,8 +534,11 @@ test "math_trig_functions" {
   inspect(cos_0, content="1")
   let cos_pi = cos_d(3.141592653589793)
   // cos(pi) should be close to -1
-  inspect(cos_pi < -0.9, content="true")
-  inspect(cos_pi > -1.1, content="false")
+  let cos_pi_err = (cos_pi + 1.0).abs()
+  inspect(cos_pi_err < 1.0e-12, content="true")
+  let sin_half_pi = sin_d(1.570796326794897)
+  let sin_half_pi_err = (sin_half_pi - 1.0).abs()
+  inspect(sin_half_pi_err < 1.0e-12, content="true")
 }
 
 // === Property-Based Testing with QuickCheck ===
