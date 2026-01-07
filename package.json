@@ -2,11 +2,12 @@
   "name": "svg-jww-viewer",
   "version": "2025.12.1",
   "description": "SVG JWW file viewer powered by MoonBit",
+  "private": true,
   "author": "f12o",
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/f4ah6o/svg_jww.mbt.git"
+    "url": "https://github.com/horideicom/svg_jww.mbt.git"
   },
   "keywords": [
     "jww",

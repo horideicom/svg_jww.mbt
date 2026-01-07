@@ -47,7 +47,7 @@ Currently, `calculate_bounds` in `jww_converter.mbt` filters out coordinates wit
 ## Related Files
 
 * `jww_converter.mbt`: calculate_bounds function
-* `.mooncakes/f4ah6o/jww_parser/core`
+* `.mooncakes/horideicom/jww_parser/core`
 
 ## Next Steps
 

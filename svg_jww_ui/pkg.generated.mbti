@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "f4ah6o/svg_jww/svg_jww_ui"
+package "horideicom/svg_jww/svg_jww_ui"
 
 import(
   "mizchi/js/core"

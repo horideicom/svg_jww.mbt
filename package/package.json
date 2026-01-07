@@ -2,11 +2,12 @@
   "name": "jww-parser-mbt",
   "version": "2025.12.6",
   "description": "JWW file parser and DXF converter powered by MoonBit",
+  "private": true,
   "author": "f12o",
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/f4ah6o/jww_parser.mbt.git"
+    "url": "https://github.com/horideicom/jww_parser.mbt.git"
   },
   "keywords": [
     "jww",

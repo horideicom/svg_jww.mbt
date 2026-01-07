@@ -25,28 +25,10 @@ function runCommand(cmd, description, options = {}) {
   }
 }
 
-function runCommandSilent(cmd) {
-  try {
-    return execSync(cmd, { encoding: 'utf8' }).trim();
-  } catch {
-    return null;
-  }
-}
-
 async function main() {
-  // Check if npm login is configured
-  const npmUser = runCommandSilent('npm whoami');
-  if (!npmUser) {
-    console.error('❌ npm login required');
-    console.error('Please run: npm login');
-    rl.close();
-    process.exit(1);
-  }
-
   const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
   const currentVersion = packageJson.version;
 
-  console.log(`\n✓ Logged in as: ${npmUser}`);
   console.log(`📦 Current version: ${currentVersion}`);
   console.log('');
 
@@ -63,10 +45,9 @@ async function main() {
   console.log(`  1. Update package.json to ${newVersion}`);
   console.log(`  2. Sync moon.mod.json & examples/package.json`);
   console.log(`  3. Build (moon build → rolldown → types)`);
-  console.log(`  4. npm publish`);
-  console.log(`  5. Update examples/pnpm-lock.yaml`);
-  console.log(`  6. Git commit, tag, and push`);
-  console.log(`  7. Create GitHub Release (optional)`);
+  console.log(`  4. Update examples/pnpm-lock.yaml`);
+  console.log(`  5. Git commit, tag, and push`);
+  console.log(`  6. Create GitHub Release (optional)`);
   console.log('');
 
   const confirm = await ask('Continue? (y/N): ');
@@ -106,31 +87,14 @@ async function main() {
     }
     console.log('✓ Build outputs verified');
 
-    // 4. npm publish
-    console.log('\n━━━ Publish Phase ━━━');
-
-    if (!runCommand('npm publish --access public', 'Publishing to npm')) {
-      throw new Error('npm publish failed');
-    }
-
-    // Verify publish
-    console.log('\n▸ Verifying npm publish...');
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for registry
-    const npmVersion = runCommandSilent(`npm view svg-jww-viewer version`);
-    if (npmVersion === newVersion) {
-      console.log(`✓ Verified: svg-jww-viewer@${newVersion} is live on npm`);
-    } else {
-      console.log(`⚠ Registry shows ${npmVersion}, expected ${newVersion} (may need time to propagate)`);
-    }
-
-    // 5. Update examples/pnpm-lock.yaml
+    // 4. Update examples/pnpm-lock.yaml
     console.log('\n━━━ Examples Update Phase ━━━');
 
     if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
       console.log('⚠ Failed to update examples lock file (continuing anyway)');
     }
 
-    // 6. Git commit, tag, and push
+    // 5. Git commit, tag, and push
     console.log('\n━━━ Git Phase ━━━');
 
     if (!runCommand(
@@ -159,7 +123,7 @@ async function main() {
       throw new Error('Failed to push git tag');
     }
 
-    // 7. Create GitHub Release (optional)
+    // 6. Create GitHub Release (optional)
     console.log('\n━━━ GitHub Release ━━━');
 
     const createRelease = await ask('Create GitHub Release? (y/N): ');
@@ -173,7 +137,7 @@ async function main() {
       if (!releaseCreated) {
         console.log('');
         console.log('⚠️  GitHub Release creation failed');
-        console.log(`   Create manually: https://github.com/f4ah6o/svg_jww.mbt/releases/new?tag=v${newVersion}`);
+        console.log(`   Create manually: https://github.com/horideicom/svg_jww.mbt/releases/new?tag=v${newVersion}`);
       }
     } else {
       console.log('Skipping GitHub Release creation');
@@ -186,9 +150,8 @@ async function main() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('');
     console.log('Published:');
-    console.log(`  📦 npm: https://www.npmjs.com/package/svg-jww-viewer/v/${newVersion}`);
     console.log(`  🏷️  Tag: v${newVersion}`);
-    console.log(`  🔗 Repo: https://github.com/f4ah6o/svg_jww.mbt`);
+    console.log(`  🔗 Repo: https://github.com/horideicom/svg_jww.mbt`);
 
   } catch (error) {
     console.error('\n❌ Release failed:', error.message);
@@ -197,8 +160,6 @@ async function main() {
     console.log(`  git reset --soft HEAD~1             # Undo last commit (if created)`);
     console.log(`  git checkout package.json moon.mod.json examples/package.json`);
     console.log('');
-    console.log('If npm publish succeeded, you may need to deprecate the version:');
-    console.log(`  npm deprecate svg-jww-viewer@${newVersion} "Released in error"`);
   }
 
   rl.close();

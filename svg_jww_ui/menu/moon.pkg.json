@@ -2,6 +2,6 @@
   "import": [
     { "path": "mizchi/luna/luna", "alias": "luna" },
     { "path": "mizchi/luna/luna/css", "alias": "css" },
-    { "path": "f4ah6o/svg_jww/svg_jww_ui/styles", "alias": "styles" }
+    { "path": "horideicom/svg_jww/svg_jww_ui/styles", "alias": "styles" }
   ]
 }

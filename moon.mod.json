@@ -1,8 +1,8 @@
 {
-  "name": "f4ah6o/svg_jww",
+  "name": "horideicom/svg_jww",
   "version": "2025.12.1",
   "deps": {
-    "f4ah6o/jww_parser": "0.202601.9",
+    "horideicom/jww_parser": "0.202601.8",
     "mizchi/luna": "0.3.5",
     "mizchi/js": "0.10.6",
     "moonbitlang/quickcheck": "0.9.8",
@@ -11,7 +11,7 @@
   },
   "preferred-target": "js",
   "readme": "README.mbt.md",
-  "repository": "https://github.com/f4ah6o/svg_jww.mbt",
+  "repository": "https://github.com/horideicom/svg_jww.mbt",
   "license": "AGPL-3.0",
   "keywords": [
     "jww",

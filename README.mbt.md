@@ -4,7 +4,7 @@ A JWW file viewer implemented in MoonBit. It provides a toolkit for displaying J
 
 ## Features
 
-* **JWW file parsing**: Parse JW_CAD binary files (uses [jww-parser](https://www.npmjs.com/package/jww-parser))
+* **JWW file parsing**: Parse JW_CAD binary files (uses [horideicom/jww_parser](https://github.com/horideicom/jww_parser.mbt))
 * **SVG rendering**: Convert JWW data to SVG for display
 * **Interactive viewer**:
   * Zoom in/out (mouse wheel, keyboard shortcuts)
@@ -32,7 +32,7 @@ A JWW file viewer implemented in MoonBit. It provides a toolkit for displaying J
 
 ```bash
 # Clone the repository
-git clone https://github.com/f4ah6o/svg_jww.mbt
+git clone https://github.com/horideicom/svg_jww.mbt
 cd svg_jww
 
 # Install dependencies
@@ -99,9 +99,11 @@ moon run cmd/svg_debug -- --debug --json-out debug.json --pretty input.jww
 
 ### Use as a Library
 
+npmへのpublishは停止中のため、ローカルワークスペースまたはビルド成果物を参照してください。
+
 ```javascript
-import { parse } from 'jww-parser';
-import { renderToSvg } from 'svg-jww-viewer';
+import { parse } from 'jww-parser'; // workspace or local build
+import { renderToSvg } from 'svg-jww-viewer'; // workspace or local build
 
 // Parse a JWW file
 const buffer = await file.arrayBuffer();
@@ -151,4 +153,4 @@ f12o
 
 ## Repository
 
-https://github.com/f4ah6o/svg_jww.mbt
+https://github.com/horideicom/svg_jww.mbt

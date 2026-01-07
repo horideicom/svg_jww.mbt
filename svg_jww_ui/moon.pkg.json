@@ -10,9 +10,9 @@
     { "path": "mizchi/luna/luna/dom/client", "alias": "client" },
     { "path": "mizchi/js/core", "alias": "js_core" },
     { "path": "mizchi/js/browser/dom", "alias": "js_dom" },
-    { "path": "f4ah6o/svg_jww/svg_jww_ui/menu", "alias": "menu" },
-    { "path": "f4ah6o/svg_jww/svg_jww_ui/components", "alias": "panel" },
-    { "path": "f4ah6o/svg_jww/svg_jww_ui/styles", "alias": "styles" },
+    { "path": "horideicom/svg_jww/svg_jww_ui/menu", "alias": "menu" },
+    { "path": "horideicom/svg_jww/svg_jww_ui/components", "alias": "panel" },
+    { "path": "horideicom/svg_jww/svg_jww_ui/styles", "alias": "styles" },
     "mizchi/luna/luna/dom"
   ],
   "link": {

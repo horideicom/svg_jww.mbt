@@ -2,7 +2,7 @@
   "import": [
     "moonbitlang/quickcheck",
     {
-      "path": "f4ah6o/jww_parser/core",
+      "path": "horideicom/jww_parser/core",
       "alias": "jww_parser_core"
     }
   ],
