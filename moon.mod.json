@@ -2,7 +2,7 @@
   "name": "f4ah6o/svg_jww",
   "version": "2025.12.1",
   "deps": {
-    "f4ah6o/jww_parser": "0.202601.7",
+    "f4ah6o/jww_parser": "0.202601.9",
     "mizchi/luna": "0.3.5",
     "mizchi/js": "0.10.6",
     "moonbitlang/quickcheck": "0.9.8",
