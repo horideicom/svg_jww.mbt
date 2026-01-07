@@ -1118,6 +1118,9 @@ fn render_point_conv(
   entity_index : Int,
   opts : RenderOptions,
 ) -> SvgElement {
+  let scale = if p.scale > 0.0 { p.scale } else { 1.0 }
+  let size = opts.transform_distance(2.0 * scale)
+  let radius = size / 2.0
   let picker_attrs = entity_picker_attrs("point", entity_index, p.base) +
     [
       attr_double("data-entity-x", p.x),
@@ -1130,7 +1133,7 @@ fn render_point_conv(
   circle([
     attr_double("cx", p.x),
     attr_double("cy", opts.transform_y(p.y)),
-    attr_double("r", 2.0),
+    attr_double("r", radius),
     fill_attr(to_svg_color(p.base.pen_color.to_int())),
   ] + picker_attrs)
 }
