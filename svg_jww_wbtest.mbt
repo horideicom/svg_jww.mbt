@@ -227,6 +227,39 @@ test "render_arc_full_circle" {
 }
 
 ///|
+test "arc_radii_flatness" {
+  let (rx, ry) = arc_radii(10.0, 0.5)
+  inspect(rx, content="10")
+  inspect(ry, content="5")
+}
+
+///|
+test "ellipse_point_axis_aligned" {
+  let (x, y) = ellipse_point(
+    0.0,
+    0.0,
+    10.0,
+    5.0,
+    0.0,
+    1.5707963267948966,
+  )
+  assert_true(x.abs() < 0.01)
+  assert_true((y - 5.0).abs() < 0.01)
+}
+
+///|
+test "ellipse_extents_no_tilt" {
+  let (x_ext, y_ext) = ellipse_extents(10.0, 5.0, 0.0)
+  assert_true((x_ext - 10.0).abs() < 0.01)
+  assert_true((y_ext - 5.0).abs() < 0.01)
+}
+
+///|
+test "tilt_to_svg_degrees" {
+  inspect(tilt_to_svg_degrees(1.5707963267948966), content="90")
+}
+
+///|
 test "render_point" {
   let point = JwwPoint::{
     base: EntityBase::new(),

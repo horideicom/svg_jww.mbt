@@ -251,6 +251,16 @@ fn render_jww_document_with_debug(
           blocks: counts.blocks,
           images: counts.images + 1,
         }
+      ParserEntity::ArcSolid(_) =>
+        counts = {
+          lines: counts.lines,
+          arcs: counts.arcs,
+          texts: counts.texts,
+          points: counts.points,
+          solids: counts.solids + 1,
+          blocks: counts.blocks,
+          images: counts.images,
+        }
     }
   }
 
@@ -338,10 +348,19 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
         if is_valid_coord(a.center_x) &&
           is_valid_coord(a.center_y) &&
           is_valid_coord(a.radius) &&
+          is_valid_coord(a.flatness) &&
+          is_valid_coord(a.tilt_angle) &&
           a.radius > 0.0 {
-          let r = a.radius
+          let (rx, ry) = arc_radii(a.radius, a.flatness)
+          let (x_ext, y_ext) = ellipse_extents(rx, ry, a.tilt_angle)
           let (nx, ny, xx, xy, init) = update_bounds(
-            min_x, min_y, max_x, max_y, a.center_x - r, a.center_y - r, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            a.center_x - x_ext,
+            a.center_y - y_ext,
+            initialized,
           )
           min_x = nx
           min_y = ny
@@ -349,7 +368,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy
           initialized = init
           let (nx2, ny2, xx2, xy2, init2) = update_bounds(
-            min_x, min_y, max_x, max_y, a.center_x + r, a.center_y + r, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            a.center_x + x_ext,
+            a.center_y + y_ext,
+            initialized,
           )
           min_x = nx2
           min_y = ny2
@@ -449,6 +474,7 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           initialized = init2
         }
       }
+      ParserEntity::ArcSolid(_) => ()
     }
   }
   if initialized {
@@ -815,6 +841,7 @@ fn get_entity_layer_conv(entity : ParserEntity) -> Int {
     ParserEntity::Solid(s) => s.base.layer.to_int()
     ParserEntity::Block(b) => b.base.layer.to_int()
     ParserEntity::Image(i) => i.base.layer.to_int()
+    ParserEntity::ArcSolid(a) => a.base.layer.to_int()
   }
 }
 
@@ -832,6 +859,7 @@ fn render_entity_conv(
     ParserEntity::Solid(s) => render_solid_conv(s, opts)
     ParserEntity::Block(b) => render_block_conv(b, opts)
     ParserEntity::Image(i) => render_image_conv(i, opts)
+    ParserEntity::ArcSolid(a) => render_arc_solid_conv(a, opts)
   }
 }
 
@@ -849,18 +877,73 @@ fn stroke_width_min(pen_width : UInt16) -> Double {
 }
 
 ///|
+/// Derive ellipse radii from JWW arc parameters
+fn arc_radii(radius : Double, flatness : Double) -> (Double, Double) {
+  let rx = radius.abs()
+  let f = flatness.abs()
+  let ry = if f <= 0.0 { rx } else { rx * f }
+  (rx, ry)
+}
+
+///|
+/// Compute a point on a tilted ellipse (JWW coordinate system)
+fn ellipse_point(
+  cx : Double,
+  cy : Double,
+  rx : Double,
+  ry : Double,
+  tilt : Double,
+  angle : Double,
+) -> (Double, Double) {
+  let cos_a = cos_d(angle)
+  let sin_a = sin_d(angle)
+  let cos_t = cos_d(tilt)
+  let sin_t = sin_d(tilt)
+  let x = cx + rx * cos_a * cos_t - ry * sin_a * sin_t
+  let y = cy + rx * cos_a * sin_t + ry * sin_a * cos_t
+  (x, y)
+}
+
+///|
+/// Convert tilt angle (radians) to SVG rotation degrees
+fn tilt_to_svg_degrees(tilt : Double) -> Double {
+  let rad_to_deg = 180.0 / 3.141592653589793
+  tilt * rad_to_deg
+}
+
+///|
+/// Axis-aligned extents of a rotated ellipse
+fn ellipse_extents(rx : Double, ry : Double, tilt : Double) -> (Double, Double) {
+  let cos_t = cos_d(tilt)
+  let sin_t = sin_d(tilt)
+  let rx_cos = rx * cos_t
+  let rx_sin = rx * sin_t
+  let ry_cos = ry * cos_t
+  let ry_sin = ry * sin_t
+  let x_extent = (rx_cos * rx_cos + ry_sin * ry_sin).sqrt()
+  let y_extent = (rx_sin * rx_sin + ry_cos * ry_cos).sqrt()
+  (x_extent, y_extent)
+}
+
+///|
 /// Render line entity
 fn render_line_conv(l : ParserLine, opts : RenderOptions) -> SvgElement {
   let stroke_w = stroke_width_min(l.base.pen_width)
-  svg_line([
+  let line_type = pen_style_to_line_type(l.base.pen_style.to_int())
+  let scale = stroke_w / 100.0
+  let base_attrs = [
     attr_double("x1", l.start_x),
     attr_double("y1", opts.transform_y(l.start_y)),
     attr_double("x2", l.end_x),
     attr_double("y2", opts.transform_y(l.end_y)),
     stroke_attr(to_svg_color(l.base.pen_color.to_int())),
-    stroke_width_double(stroke_w / 100.0),
+    stroke_width_double(scale),
     fill_none(),
-  ])
+  ]
+  match line_type_to_dasharray(line_type, scale) {
+    Some(dash_attr) => svg_line(base_attrs + [dash_attr])
+    None => svg_line(base_attrs)
+  }
 }
 
 ///|
@@ -868,25 +951,81 @@ fn render_line_conv(l : ParserLine, opts : RenderOptions) -> SvgElement {
 fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
   let cx = a.center_x
   let cy = opts.transform_y(a.center_y)
-  let r = a.radius
+  let (rx, ry) = arc_radii(a.radius, a.flatness)
+  let rotation = tilt_to_svg_degrees(a.tilt_angle)
   let color = to_svg_color(a.base.pen_color.to_int())
   let stroke_w = stroke_width_min(a.base.pen_width)
+  let line_type = pen_style_to_line_type(a.base.pen_style.to_int())
+  let scale = stroke_w / 100.0
   if a.is_full_circle {
-    circle([
-      attr_double("cx", cx),
-      attr_double("cy", cy),
-      attr_double("r", r),
-      fill_none(),
-      stroke_attr(color),
-      stroke_width_double(stroke_w / 100.0),
-    ])
+    if a.flatness == 1.0 {
+      let base_attrs = [
+        attr_double("cx", cx),
+        attr_double("cy", cy),
+        attr_double("r", rx),
+        fill_none(),
+        stroke_attr(color),
+        stroke_width_double(scale),
+      ]
+      match line_type_to_dasharray(line_type, scale) {
+        Some(dash_attr) => circle(base_attrs + [dash_attr])
+        None => circle(base_attrs)
+      }
+    } else {
+      let base_attrs = [
+        attr_double("cx", cx),
+        attr_double("cy", cy),
+        attr_double("rx", rx),
+        attr_double("ry", ry),
+        fill_none(),
+        stroke_attr(color),
+        stroke_width_double(scale),
+      ]
+      let ellipse_attrs = if a.tilt_angle != 0.0 {
+        base_attrs +
+        [
+          attr(
+            "transform",
+            "rotate(" +
+            rotation.to_string() +
+            " " +
+            cx.to_string() +
+            " " +
+            cy.to_string() +
+            ")",
+          ),
+        ]
+      } else {
+        base_attrs
+      }
+      match line_type_to_dasharray(line_type, scale) {
+        Some(dash_attr) => ellipse(ellipse_attrs + [dash_attr])
+        None => ellipse(ellipse_attrs)
+      }
+    }
   } else {
     let start_angle = a.start_angle
-    let x1 = cx + r * cos_d(start_angle)
-    let y1 = cy - r * sin_d(start_angle)
     let end_angle = start_angle + a.arc_angle
-    let x2 = cx + r * cos_d(end_angle)
-    let y2 = cy - r * sin_d(end_angle)
+    let (x1_raw, y1_raw) = ellipse_point(
+      a.center_x,
+      a.center_y,
+      rx,
+      ry,
+      a.tilt_angle,
+      start_angle,
+    )
+    let (x2_raw, y2_raw) = ellipse_point(
+      a.center_x,
+      a.center_y,
+      rx,
+      ry,
+      a.tilt_angle,
+      end_angle,
+    )
+    let x1 = x1_raw
+    let y1 = opts.transform_y(y1_raw)
+    let x2 = x2_raw
+    let y2 = opts.transform_y(y2_raw)
     let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
     let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
     let path_d = "M " +
@@ -894,10 +1033,12 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
       " " +
       y1.to_string() +
       " A " +
-      r.to_string() +
+      rx.to_string() +
       " " +
-      r.to_string() +
-      " 0 " +
+      ry.to_string() +
+      " " +
+      rotation.to_string() +
+      " " +
       large_arc.to_string() +
       " " +
       sweep.to_string() +
@@ -905,12 +1046,16 @@ fn render_arc_conv(a : ParserArc, opts : RenderOptions) -> SvgElement {
       x2.to_string() +
       " " +
       y2.to_string()
-    path([
+    let base_attrs = [
       attr("d", path_d),
       fill_none(),
       stroke_attr(color),
-      stroke_width_double(stroke_w / 100.0),
-    ])
+      stroke_width_double(scale),
+    ]
+    match line_type_to_dasharray(line_type, scale) {
+      Some(dash_attr) => path(base_attrs + [dash_attr])
+      None => path(base_attrs)
+    }
   }
 }
 
@@ -978,6 +1123,92 @@ fn render_solid_conv(s : ParserSolid, opts : RenderOptions) -> SvgElement {
     fill_attr(to_svg_color(s.base.pen_color.to_int())),
     stroke_none(),
   ])
+}
+
+///|
+/// Render arc solid entity (filled arc/circle)
+fn render_arc_solid_conv(a : @jww_parser_core.ArcSolid, opts : RenderOptions) -> SvgElement {
+  let cx = a.center_x
+  let cy = opts.transform_y(a.center_y)
+  let (rx, ry) = arc_radii(a.radius, a.flatness)
+  let rotation = tilt_to_svg_degrees(a.tilt_angle)
+  let color = to_svg_color(a.base.pen_color.to_int())
+  // For full circle solid, render as filled circle
+  if a.arc_angle.abs() >= 6.28 {
+    if a.flatness == 1.0 {
+      circle([
+        attr_double("cx", cx),
+        attr_double("cy", cy),
+        attr_double("r", rx),
+        fill_attr(color),
+        stroke_none(),
+      ])
+    } else {
+      let base_attrs = [
+        attr_double("cx", cx),
+        attr_double("cy", cy),
+        attr_double("rx", rx),
+        attr_double("ry", ry),
+        fill_attr(color),
+        stroke_none(),
+      ]
+      let ellipse_attrs = if a.tilt_angle != 0.0 {
+        base_attrs +
+        [
+          attr(
+            "transform",
+            "rotate(" +
+            rotation.to_string() +
+            " " +
+            cx.to_string() +
+            " " +
+            cy.to_string() +
+            ")",
+          ),
+        ]
+      } else {
+        base_attrs
+      }
+      ellipse(ellipse_attrs)
+    }
+  } else {
+    // For arc solid, render as filled path
+    let start_angle = a.start_angle
+    let end_angle = start_angle + a.arc_angle
+    let (x1_raw, y1_raw) = ellipse_point(
+      a.center_x,
+      a.center_y,
+      rx,
+      ry,
+      a.tilt_angle,
+      start_angle,
+    )
+    let (x2_raw, y2_raw) = ellipse_point(
+      a.center_x,
+      a.center_y,
+      rx,
+      ry,
+      a.tilt_angle,
+      end_angle,
+    )
+    let x1 = x1_raw
+    let y1 = opts.transform_y(y1_raw)
+    let x2 = x2_raw
+    let y2 = opts.transform_y(y2_raw)
+    let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
+    let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
+    let path_d = "M " + cx.to_string() + " " + cy.to_string() +
+      " L " + x1.to_string() + " " + y1.to_string() +
+      " A " + rx.to_string() + " " + ry.to_string() +
+      " " + rotation.to_string() + " " + large_arc.to_string() +
+      " " + sweep.to_string() +
+      " " + x2.to_string() + " " + y2.to_string() + " Z"
+    path([
+      attr("d", path_d),
+      fill_attr(color),
+      stroke_none(),
+    ])
+  }
 }
 
 ///|
