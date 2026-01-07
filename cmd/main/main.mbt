@@ -141,10 +141,11 @@ fn main {
 
   // Test 8: Color conversion
   println("Test 8: Color conversion")
-  println("Pen color 0 (white): " + @lib.to_svg_color(0))
-  println("Pen color 1 (black): " + @lib.to_svg_color(1))
-  println("Pen color 2 (red): " + @lib.to_svg_color(2))
-  println("Pen color 4 (blue): " + @lib.to_svg_color(4))
+  println("Pen color 0 (default): " + @lib.to_svg_color(0))
+  println("Pen color 1 (cyan): " + @lib.to_svg_color(1))
+  println("Pen color 2 (white): " + @lib.to_svg_color(2))
+  println("Pen color 4 (yellow): " + @lib.to_svg_color(4))
+  println("Pen color 6 (blue): " + @lib.to_svg_color(6))
   println("")
 
   // Test 9: BoundingBox

@@ -98,10 +98,10 @@ test "bounding_box_dimensions" {
 
 ///|
 test "color_conversion" {
-  inspect(to_svg_color(0), content="#ffffff")
-  inspect(to_svg_color(1), content="#000000")
-  inspect(to_svg_color(2), content="#ff0000")
-  inspect(to_svg_color(4), content="#0000ff")
+  inspect(to_svg_color(0), content="#000000")
+  inspect(to_svg_color(1), content="#00c0c0")
+  inspect(to_svg_color(2), content="#ffffff")
+  inspect(to_svg_color(4), content="#c0c000")
   inspect(to_svg_color(99), content="#000000") // Unknown color defaults to black
 }
 
@@ -354,7 +354,7 @@ test "render_solid_fill" {
     y3: 100.0,
     x4: 0.0,
     y4: 100.0,
-    color: 2, // red
+    color: 6, // blue
   }
   let opts = RenderOptions::with_size(100.0, 100.0)
   let result = render_solid(solid, opts)
@@ -362,13 +362,13 @@ test "render_solid_fill" {
   inspect(
     svg_str,
     content=(
-      #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
+      #|<polygon points="0,100 100,100 100,0 0,0" fill="#0000ff" stroke="none" />
     ),
   )
   inspect(
     svg_str,
     content=(
-      #|<polygon points="0,100 100,100 100,0 0,0" fill="#ff0000" stroke="none" />
+      #|<polygon points="0,100 100,100 100,0 0,0" fill="#0000ff" stroke="none" />
     ),
   )
 }

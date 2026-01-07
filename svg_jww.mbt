@@ -238,18 +238,17 @@ pub fn BoundingBox::is_valid(self : BoundingBox) -> Bool {
 ///|
 /// Color utilities for converting JWW color numbers to CSS colors
 pub fn to_svg_color(pen_color : Int) -> String {
-  // JWW color numbers: 0=white, 1=black, 2=red, 3=green, 4=blue, 5=yellow, 6=cyan, 7=magenta, 8=gray
+  // JWW color numbers (Jw_win.Jwf sample): 1-8 basic colors, 9 auxiliary
   match pen_color {
-    0 => "#ffffff"
-    1 => "#000000"
-    2 => "#ff0000"
-    3 => "#00ff00"
-    4 => "#0000ff"
-    5 => "#ffff00"
-    6 => "#00ffff"
-    7 => "#ff00ff"
-    8 => "#808080"
-    9 => "#c0c0c0"
+    1 => "#00c0c0"
+    2 => "#ffffff"
+    3 => "#00c000"
+    4 => "#c0c000"
+    5 => "#c000c0"
+    6 => "#0000ff"
+    7 => "#008080"
+    8 => "#ff0080"
+    9 => "#ff80ff"
     _ => "#000000"
   }
 }
