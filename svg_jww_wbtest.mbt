@@ -166,10 +166,16 @@ test "line_type_dasharray" {
   inspect(line_type_to_dasharray(LineType::Solid, scale), content="None")
   // Custom pattern
   let custom = LineType::Custom([5.0, 3.0])
-  inspect(line_type_to_dasharray(custom, scale), content="Some((\"stroke-dasharray\", \"5,3\"))")
+  inspect(
+    line_type_to_dasharray(custom, scale),
+    content="Some((\"stroke-dasharray\", \"5,3\"))",
+  )
   // With scale
   let custom2 = LineType::Custom([5.0, 3.0])
-  inspect(line_type_to_dasharray(custom2, 2.0), content="Some((\"stroke-dasharray\", \"10,6\"))")
+  inspect(
+    line_type_to_dasharray(custom2, 2.0),
+    content="Some((\"stroke-dasharray\", \"10,6\"))",
+  )
 }
 
 ///|
@@ -199,7 +205,7 @@ test "render_line_basic" {
   inspect(
     svg_str,
     content=(
-      #|<line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" />
+      #|<line x1="0" y1="200" x2="100" y2="100" stroke="#00c0c0" stroke-width="1" fill="none" />
     ),
   )
 }
@@ -221,7 +227,7 @@ test "render_arc_full_circle" {
   inspect(
     svg_str,
     content=(
-      #|<circle cx="100" cy="100" r="50" stroke="#000000" stroke-width="1" fill="none" />
+      #|<circle cx="100" cy="100" r="50" stroke="#00c0c0" stroke-width="1" fill="none" />
     ),
   )
 }
@@ -235,14 +241,7 @@ test "arc_radii_flatness" {
 
 ///|
 test "ellipse_point_axis_aligned" {
-  let (x, y) = ellipse_point(
-    0.0,
-    0.0,
-    10.0,
-    5.0,
-    0.0,
-    1.5707963267948966,
-  )
+  let (x, y) = ellipse_point(0.0, 0.0, 10.0, 5.0, 0.0, 1.5707963267948966)
   assert_true(x.abs() < 0.01)
   assert_true((y - 5.0).abs() < 0.01)
 }
@@ -273,7 +272,7 @@ test "render_point" {
   inspect(
     svg_str,
     content=(
-      #|<circle cx="50" cy="50" r="1" fill="#000000" />
+      #|<circle cx="50" cy="50" r="1" fill="#00c0c0" />
     ),
   )
 }
@@ -291,7 +290,7 @@ test "render_polyline_open" {
   inspect(
     svg_str,
     content=(
-      #|<polyline points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
+      #|<polyline points="0,100 50,50 100,100" stroke="#00c0c0" stroke-width="1" fill="none" />
     ),
   )
 }
@@ -309,7 +308,7 @@ test "render_polyline_closed" {
   inspect(
     svg_str,
     content=(
-      #|<polygon points="0,100 50,50 100,100" stroke="#000000" stroke-width="1" fill="none" />
+      #|<polygon points="0,100 50,50 100,100" stroke="#00c0c0" stroke-width="1" fill="none" />
     ),
   )
 }
@@ -331,13 +330,13 @@ test "render_text_with_rotation" {
   inspect(
     svg_str,
     content=(
-      #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
+      #|<text x="50" y="50" fill="#00c0c0" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
     ),
   )
   inspect(
     svg_str,
     content=(
-      #|<text x="50" y="50" fill="#000000" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
+      #|<text x="50" y="50" fill="#00c0c0" font-size="12" font-family="sans-serif" style="transform-origin: 50px 50px; transform: rotate(-45deg);">Hello</text>
     ),
   )
 }
@@ -390,13 +389,13 @@ test "render_block_placeholder" {
   inspect(
     svg_str,
     content=(
-      #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
+      #|<rect x="40" y="40" width="20" height="20" stroke="#00c0c0" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
     ),
   )
   inspect(
     svg_str,
     content=(
-      #|<rect x="40" y="40" width="20" height="20" stroke="#000000" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
+      #|<rect x="40" y="40" width="20" height="20" stroke="#00c0c0" fill="none" stroke-width="1" style="stroke-dasharray: 2,2" />
     ),
   )
 }
@@ -435,19 +434,19 @@ test "render_document_simple" {
   inspect(
     svg_str,
     content=(
-      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#00c0c0" stroke-width="1" fill="none" /></svg>
     ),
   )
   inspect(
     svg_str,
     content=(
-      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#00c0c0" stroke-width="1" fill="none" /></svg>
     ),
   )
   inspect(
     svg_str,
     content=(
-      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#000000" stroke-width="1" fill="none" /></svg>
+      #|<svg viewBox="0 0 100 100" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background-color: #ffffff;"><line x1="0" y1="200" x2="100" y2="100" stroke="#00c0c0" stroke-width="1" fill="none" /></svg>
     ),
   )
 }

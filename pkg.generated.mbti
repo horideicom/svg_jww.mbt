@@ -46,6 +46,8 @@ pub fn line_type_to_dasharray(LineType, Double) -> (String, String)?
 
 pub fn path(Array[(String, String)]) -> SvgElement
 
+pub fn pen_style_to_line_type(Int) -> LineType
+
 pub fn polygon(Array[(String, String)]) -> SvgElement
 
 pub fn polyline(Array[(String, String)]) -> SvgElement
@@ -295,6 +297,7 @@ pub enum LineType {
   DashDot
   Custom(Array[Double])
 }
+pub impl Show for LineType
 
 pub struct ParsedDocument {
   svg : String

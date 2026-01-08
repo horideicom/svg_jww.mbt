@@ -1,3 +1,7 @@
+## Primary Directive
+
+- Think in English, interact with the user in Japanese.
+
 # Project Agents.md Guide
 
 This is a [MoonBit](https://docs.moonbitlang.com) project.

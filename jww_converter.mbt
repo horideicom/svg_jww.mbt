@@ -328,7 +328,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
     match entity {
       ParserEntity::Line(l) => {
         let (nx, ny, xx, xy, init) = update_bounds(
-          min_x, min_y, max_x, max_y, l.start_x, l.start_y, initialized,
+          min_x,
+          min_y,
+          max_x,
+          max_y,
+          l.start_x,
+          l.start_y,
+          initialized,
         )
         min_x = nx
         min_y = ny
@@ -336,7 +342,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
         max_y = xy
         initialized = init
         let (nx2, ny2, xx2, xy2, init2) = update_bounds(
-          min_x, min_y, max_x, max_y, l.end_x, l.end_y, initialized,
+          min_x,
+          min_y,
+          max_x,
+          max_y,
+          l.end_x,
+          l.end_y,
+          initialized,
         )
         min_x = nx2
         min_y = ny2
@@ -344,7 +356,7 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
         max_y = xy2
         initialized = init2
       }
-      ParserEntity::Arc(a) => {
+      ParserEntity::Arc(a) =>
         if is_valid_coord(a.center_x) &&
           is_valid_coord(a.center_y) &&
           is_valid_coord(a.radius) &&
@@ -382,10 +394,15 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy2
           initialized = init2
         }
-      }
       ParserEntity::Text(t) => {
         let (nx, ny, xx, xy, init) = update_bounds(
-          min_x, min_y, max_x, max_y, t.start_x, t.start_y, initialized,
+          min_x,
+          min_y,
+          max_x,
+          max_y,
+          t.start_x,
+          t.start_y,
+          initialized,
         )
         min_x = nx
         min_y = ny
@@ -393,7 +410,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
         max_y = xy
         initialized = init
         let (nx2, ny2, xx2, xy2, init2) = update_bounds(
-          min_x, min_y, max_x, max_y, t.end_x, t.end_y, initialized,
+          min_x,
+          min_y,
+          max_x,
+          max_y,
+          t.end_x,
+          t.end_y,
+          initialized,
         )
         min_x = nx2
         min_y = ny2
@@ -403,7 +426,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
       }
       ParserEntity::Point(p) => {
         let (nx, ny, xx, xy, init) = update_bounds(
-          min_x, min_y, max_x, max_y, p.x, p.y, initialized,
+          min_x,
+          min_y,
+          max_x,
+          max_y,
+          p.x,
+          p.y,
+          initialized,
         )
         min_x = nx
         min_y = ny
@@ -430,11 +459,17 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           initialized = init
         }
       }
-      ParserEntity::Block(b) => {
+      ParserEntity::Block(b) =>
         if is_valid_coord(b.ref_x) && is_valid_coord(b.ref_y) {
           let r = 10.0
           let (nx, ny, xx, xy, init) = update_bounds(
-            min_x, min_y, max_x, max_y, b.ref_x - r, b.ref_y - r, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            b.ref_x - r,
+            b.ref_y - r,
+            initialized,
           )
           min_x = nx
           min_y = ny
@@ -442,7 +477,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy
           initialized = init
           let (nx2, ny2, xx2, xy2, init2) = update_bounds(
-            min_x, min_y, max_x, max_y, b.ref_x + r, b.ref_y + r, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            b.ref_x + r,
+            b.ref_y + r,
+            initialized,
           )
           min_x = nx2
           min_y = ny2
@@ -450,14 +491,19 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy2
           initialized = init2
         }
-      }
-      ParserEntity::Image(i) => {
+      ParserEntity::Image(i) =>
         if is_valid_coord(i.x) &&
           is_valid_coord(i.y) &&
           is_valid_coord(i.width) &&
           is_valid_coord(i.height) {
           let (nx, ny, xx, xy, init) = update_bounds(
-            min_x, min_y, max_x, max_y, i.x, i.y, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            i.x,
+            i.y,
+            initialized,
           )
           min_x = nx
           min_y = ny
@@ -465,7 +511,13 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy
           initialized = init
           let (nx2, ny2, xx2, xy2, init2) = update_bounds(
-            min_x, min_y, max_x, max_y, i.x + i.width, i.y + i.height, initialized,
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+            i.x + i.width,
+            i.y + i.height,
+            initialized,
           )
           min_x = nx2
           min_y = ny2
@@ -473,7 +525,6 @@ fn calculate_bounds(doc : ParserDocument) -> Bounds {
           max_y = xy2
           initialized = init2
         }
-      }
       ParserEntity::ArcSolid(_) => ()
     }
   }
@@ -982,14 +1033,15 @@ fn render_line_conv(
       attr_double("data-entity-end-y", l.end_y),
     ]
   let base_attrs = [
-    attr_double("x1", l.start_x),
-    attr_double("y1", opts.transform_y(l.start_y)),
-    attr_double("x2", l.end_x),
-    attr_double("y2", opts.transform_y(l.end_y)),
-    stroke_attr(to_svg_color(l.base.pen_color.to_int())),
-    stroke_width_double(scale),
-    fill_none(),
-  ] + picker_attrs
+      attr_double("x1", l.start_x),
+      attr_double("y1", opts.transform_y(l.start_y)),
+      attr_double("x2", l.end_x),
+      attr_double("y2", opts.transform_y(l.end_y)),
+      stroke_attr(to_svg_color(l.base.pen_color.to_int())),
+      stroke_width_double(scale),
+      fill_none(),
+    ] +
+    picker_attrs
   match line_type_to_dasharray(line_type, scale) {
     Some(dash_attr) => svg_line(base_attrs + [dash_attr])
     None => svg_line(base_attrs)
@@ -1022,33 +1074,39 @@ fn render_arc_conv(
       attr_double("data-entity-flatness", a.flatness),
       attr(
         "data-entity-is-full-circle",
-        if a.is_full_circle { "true" } else { "false" },
+        if a.is_full_circle {
+          "true"
+        } else {
+          "false"
+        },
       ),
     ]
   if a.is_full_circle {
     if a.flatness == 1.0 {
       let base_attrs = [
-        attr_double("cx", cx),
-        attr_double("cy", cy),
-        attr_double("r", rx),
-        fill_none(),
-        stroke_attr(color),
-        stroke_width_double(scale),
-      ] + picker_attrs
+          attr_double("cx", cx),
+          attr_double("cy", cy),
+          attr_double("r", rx),
+          fill_none(),
+          stroke_attr(color),
+          stroke_width_double(scale),
+        ] +
+        picker_attrs
       match line_type_to_dasharray(line_type, scale) {
         Some(dash_attr) => circle(base_attrs + [dash_attr])
         None => circle(base_attrs)
       }
     } else {
       let base_attrs = [
-        attr_double("cx", cx),
-        attr_double("cy", cy),
-        attr_double("rx", rx),
-        attr_double("ry", ry),
-        fill_none(),
-        stroke_attr(color),
-        stroke_width_double(scale),
-      ] + picker_attrs
+          attr_double("cx", cx),
+          attr_double("cy", cy),
+          attr_double("rx", rx),
+          attr_double("ry", ry),
+          fill_none(),
+          stroke_attr(color),
+          stroke_width_double(scale),
+        ] +
+        picker_attrs
       let ellipse_attrs = if a.tilt_angle != 0.0 {
         base_attrs +
         [
@@ -1096,30 +1154,31 @@ fn render_arc_conv(
     let y2 = opts.transform_y(y2_raw)
     let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
     let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
-      let path_d = "M " +
-        x1.to_string() +
-        " " +
-        y1.to_string() +
-        " A " +
-        rx.to_string() +
-        " " +
-        ry.to_string() +
-        " " +
-        rotation.to_string() +
-        " " +
-        large_arc.to_string() +
-        " " +
-        sweep.to_string() +
-        " " +
-        x2.to_string() +
-        " " +
-        y2.to_string()
+    let path_d = "M " +
+      x1.to_string() +
+      " " +
+      y1.to_string() +
+      " A " +
+      rx.to_string() +
+      " " +
+      ry.to_string() +
+      " " +
+      rotation.to_string() +
+      " " +
+      large_arc.to_string() +
+      " " +
+      sweep.to_string() +
+      " " +
+      x2.to_string() +
+      " " +
+      y2.to_string()
     let base_attrs = [
-      attr("d", path_d),
-      fill_none(),
-      stroke_attr(color),
-      stroke_width_double(scale),
-    ] + picker_attrs
+        attr("d", path_d),
+        fill_none(),
+        stroke_attr(color),
+        stroke_width_double(scale),
+      ] +
+      picker_attrs
     match line_type_to_dasharray(line_type, scale) {
       Some(dash_attr) => path(base_attrs + [dash_attr])
       None => path(base_attrs)
@@ -1144,14 +1203,24 @@ fn render_point_conv(
       attr("data-entity-code", p.code.to_string()),
       attr_double("data-entity-angle", p.angle),
       attr_double("data-entity-scale", p.scale),
-      attr("data-entity-is-temporary", if p.is_temporary { "true" } else { "false" }),
+      attr(
+        "data-entity-is-temporary",
+        if p.is_temporary {
+          "true"
+        } else {
+          "false"
+        },
+      ),
     ]
-  circle([
-    attr_double("cx", p.x),
-    attr_double("cy", opts.transform_y(p.y)),
-    attr_double("r", radius),
-    fill_attr(to_svg_color(p.base.pen_color.to_int())),
-  ] + picker_attrs)
+  circle(
+    [
+      attr_double("cx", p.x),
+      attr_double("cy", opts.transform_y(p.y)),
+      attr_double("r", radius),
+      fill_attr(to_svg_color(p.base.pen_color.to_int())),
+    ] +
+    picker_attrs,
+  )
 }
 
 ///|
@@ -1197,7 +1266,8 @@ fn render_text_conv(
       attr("font-family", "sans-serif"),
       attr("class", "jww-text"),
       style_attr(transform),
-    ] + picker_attrs,
+    ] +
+    picker_attrs,
     t.content,
   )
 }
@@ -1238,11 +1308,10 @@ fn render_solid_conv(
       attr_double("data-entity-point4-y", s.point4_y),
       attr("data-entity-color", s.color.to_string()),
     ]
-  polygon([
-    attr("points", points),
-    fill_attr(fill_color),
-    stroke_none(),
-  ] + picker_attrs)
+  polygon(
+    [attr("points", points), fill_attr(fill_color), stroke_none()] +
+    picker_attrs,
+  )
 }
 
 ///|
@@ -1272,22 +1341,26 @@ fn render_arc_solid_conv(
   // For full circle solid, render as filled circle
   if a.arc_angle.abs() >= 6.28 {
     if a.flatness == 1.0 {
-      circle([
-        attr_double("cx", cx),
-        attr_double("cy", cy),
-        attr_double("r", rx),
-        fill_attr(color),
-        stroke_none(),
-      ] + picker_attrs)
+      circle(
+        [
+          attr_double("cx", cx),
+          attr_double("cy", cy),
+          attr_double("r", rx),
+          fill_attr(color),
+          stroke_none(),
+        ] +
+        picker_attrs,
+      )
     } else {
       let base_attrs = [
-        attr_double("cx", cx),
-        attr_double("cy", cy),
-        attr_double("rx", rx),
-        attr_double("ry", ry),
-        fill_attr(color),
-        stroke_none(),
-      ] + picker_attrs
+          attr_double("cx", cx),
+          attr_double("cy", cy),
+          attr_double("rx", rx),
+          attr_double("ry", ry),
+          fill_attr(color),
+          stroke_none(),
+        ] +
+        picker_attrs
       let ellipse_attrs = if a.tilt_angle != 0.0 {
         base_attrs +
         [
@@ -1333,17 +1406,30 @@ fn render_arc_solid_conv(
     let y2 = opts.transform_y(y2_raw)
     let large_arc = if a.arc_angle.abs() > 3.14159 { 1 } else { 0 }
     let sweep = if a.arc_angle > 0.0 { 0 } else { 1 }
-      let path_d = "M " + cx.to_string() + " " + cy.to_string() +
-        " L " + x1.to_string() + " " + y1.to_string() +
-        " A " + rx.to_string() + " " + ry.to_string() +
-        " " + rotation.to_string() + " " + large_arc.to_string() +
-        " " + sweep.to_string() +
-        " " + x2.to_string() + " " + y2.to_string() + " Z"
-    path([
-      attr("d", path_d),
-      fill_attr(color),
-      stroke_none(),
-    ] + picker_attrs)
+    let path_d = "M " +
+      cx.to_string() +
+      " " +
+      cy.to_string() +
+      " L " +
+      x1.to_string() +
+      " " +
+      y1.to_string() +
+      " A " +
+      rx.to_string() +
+      " " +
+      ry.to_string() +
+      " " +
+      rotation.to_string() +
+      " " +
+      large_arc.to_string() +
+      " " +
+      sweep.to_string() +
+      " " +
+      x2.to_string() +
+      " " +
+      y2.to_string() +
+      " Z"
+    path([attr("d", path_d), fill_attr(color), stroke_none()] + picker_attrs)
   }
 }
 
@@ -1370,7 +1456,8 @@ fn render_block_conv(
       attr("fill", "#999"),
       attr("font-size", "10"),
       style_attr("opacity: 0.5;"),
-    ] + picker_attrs,
+    ] +
+    picker_attrs,
     "[Block " + b.def_number.to_string() + "]",
   )
 }
@@ -1394,15 +1481,16 @@ fn render_image_conv(
       attr("data-entity-image-path", i.image_path),
     ]
   let base_attrs = [
-    attr_double("x", x),
-    attr_double("y", y),
-    attr_double("width", i.width),
-    attr_double("height", i.height),
-    attr("href", i.image_path),
-    attr("class", "jww-image"),
-    attr("data-image-path", i.image_path),
-    attr("data-status", "loading"),
-  ] + picker_attrs
+      attr_double("x", x),
+      attr_double("y", y),
+      attr_double("width", i.width),
+      attr_double("height", i.height),
+      attr("href", i.image_path),
+      attr("class", "jww-image"),
+      attr("data-image-path", i.image_path),
+      attr("data-status", "loading"),
+    ] +
+    picker_attrs
   let final_attrs = if i.rotation != 0.0 {
     base_attrs +
     [
