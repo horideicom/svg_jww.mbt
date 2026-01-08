@@ -1,7 +1,11 @@
 import { defineConfig } from "vite";
 
-export default defineConfig({
-  base: "/svg_jww.mbt/",
+const base =
+  process.env.BASE_PATH ??
+  (process.env.CF_PAGES ? "/" : "/svg_jww.mbt/");
+
+export default defineConfig(({ mode }) => ({
+  base: mode == "production" ? base : "/",
   build: {
     outDir: "dist",
     sourcemap: true,
@@ -12,4 +16,4 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-});
+}));
