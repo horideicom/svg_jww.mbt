@@ -497,6 +497,7 @@ pub fn stroke_none() -> (String, String) {
 
 ///|
 /// Line style utilities for JWW line types
+#warnings("-unused_constructor")
 pub enum LineType {
   Solid
   Dashed
@@ -591,7 +592,7 @@ pub fn image_format_to_mime(format : JwwImageFormat) -> String {
 
 ///|
 /// Convert bytes to base64 string (placeholder - requires base64 library)
-pub fn bytes_to_base64(data : Bytes) -> String {
+pub fn bytes_to_base64(_data : Bytes) -> String {
   // TODO: Implement proper base64 encoding
   // For now, return empty string as placeholder
   ""

@@ -1,9 +1,7 @@
 ///|
-/// JWW data types for rendering
-/// These types mirror the structure parsed from JWW files
-
-///|
-/// Base entity properties
+/// JWW data types for rendering.
+/// These types mirror the structure parsed from JWW files.
+// Base entity properties
 pub struct EntityBase {
   layer : Int
   layer_group : Int

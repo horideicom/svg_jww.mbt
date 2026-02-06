@@ -16,6 +16,10 @@
     {
       "path": "moonbitlang/x/sys",
       "alias": "sys"
+    },
+    {
+      "path": "moonbitlang/core/ref",
+      "alias": "ref"
     }
   ]
 }
