@@ -922,9 +922,9 @@ fn entity_picker_attrs(
 /// Convert JWW custom RGB (COLORREF) into CSS color string
 fn color_from_custom_rgb(color : UInt) -> String {
   let mask = 0xffU
-  let r = (color & mask).to_int()
-  let g = ((color >> 8) & mask).to_int()
-  let b = ((color >> 16) & mask).to_int()
+  let r = (color & mask).reinterpret_as_int()
+  let g = ((color >> 8) & mask).reinterpret_as_int()
+  let b = ((color >> 16) & mask).reinterpret_as_int()
   to_rgb_color(r, g, b)
 }
 

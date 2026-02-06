@@ -471,7 +471,6 @@ pub fn PanelState::toggle(self : PanelState) -> PanelState {
 ///|
 /// Start dragging panel
 pub fn DragState::start(
-  self : DragState,
   start_x : Double,
   start_y : Double,
   panel_x : Double,

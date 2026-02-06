@@ -351,28 +351,9 @@ pub fn render_print_area(doc : JwwDocument, opts : RenderOptions) -> SvgElement 
       "transform",
       "rotate(90, " + center_x.to_string() + ", " + center_y.to_string() + ")",
     )
-    [
-      attr("x", x.to_string()),
-      attr("y", y.to_string()),
-      attr("width", width.to_string()),
-      attr("height", height.to_string()),
-      stroke_attr("#ff0000"),
-      fill_none(),
-      attr("stroke-width", "1"),
-      style_attr("stroke-dasharray: 5,5;"),
-      transform_attr,
-    ]
+    base_attrs + [transform_attr]
   } else {
-    [
-      attr("x", x.to_string()),
-      attr("y", y.to_string()),
-      attr("width", width.to_string()),
-      attr("height", height.to_string()),
-      stroke_attr("#ff0000"),
-      fill_none(),
-      attr("stroke-width", "1"),
-      style_attr("stroke-dasharray: 5,5;"),
-    ]
+    base_attrs
   }
   rect(attrs)
 }

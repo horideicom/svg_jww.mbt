@@ -1,11 +1,15 @@
 {
   "import": [
-    "moonbitlang/quickcheck",
+    { "path": "moonbitlang/core/math", "alias": "math" },
     {
       "path": "horideicom/jww_parser/core",
       "alias": "jww_parser_core"
     }
   ],
+  "wbtest-import": [
+    { "path": "moonbitlang/quickcheck", "alias": "quickcheck" }
+  ],
+  "warn-list": "-6-9",
   "link": {
     "js": {
       "exports": [
