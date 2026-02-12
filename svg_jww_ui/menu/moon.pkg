@@ -1,5 +1,5 @@
 import {
-  "mizchi/luna/luna" @luna,
-  "mizchi/luna/luna/css" @css,
+  "mizchi/luna" @luna,
+  "mizchi/luna/x/css" @css,
   "horideicom/svg_jww/svg_jww_ui/styles" @styles,
 }

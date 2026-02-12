@@ -9,7 +9,7 @@ pub fn render_canvas(
   svg_content_sig : @signal.Signal[String],
   on_pan : @luna.EventHandler[Unit],
   on_wheel : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let svg_content = svg_content_sig.get()
   @luna.h(
     "div",
@@ -69,7 +69,7 @@ pub fn render_canvas(
 ///|
 /// Simple SVG renderer without interactivity
 /// For static display or SSR
-pub fn render_static_svg(svg_content : String) -> @luna.Node[Unit] {
+pub fn render_static_svg(svg_content : String) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [
@@ -91,7 +91,7 @@ pub fn render_canvas_with_controls(
   on_zoom_out : @luna.EventHandler[Unit],
   on_fit : @luna.EventHandler[Unit],
   on_reset : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [

@@ -8,7 +8,7 @@ fn render_layer_item(
   on_toggle_visibility : @luna.EventHandler[Unit],
   on_toggle_lock : @luna.EventHandler[Unit],
   on_select : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let visibility_icon = if layer.visible { "👁" } else { "○" }
   let lock_icon = if layer.locked { "🔒" } else { "🔓" }
   let opacity_value = if layer.visible { "1.0" } else { "0.5" }
@@ -65,7 +65,7 @@ pub fn render_layer_panel(
   on_toggle_visibility : @luna.EventHandler[Unit],
   on_toggle_lock : @luna.EventHandler[Unit],
   on_select_layer : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let config = @panel.make_panel_config("Layers")
   let layers = state_sig.get().layers
   let layer_list = @luna.h(
@@ -95,7 +95,7 @@ pub fn render_collapsible_layer_panel(
   on_toggle_lock : @luna.EventHandler[Unit],
   on_select_layer : @luna.EventHandler[Unit],
   on_toggle_panel : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [

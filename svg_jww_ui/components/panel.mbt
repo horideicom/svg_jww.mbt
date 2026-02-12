@@ -17,9 +17,9 @@ pub fn make_panel_config(title : String) -> PanelConfig {
 /// Render a unified panel component
 pub fn render_panel(
   config : PanelConfig,
-  content : @luna.Node[Unit],
-  footer : @luna.Node[Unit]?,
-) -> @luna.Node[Unit] {
+  content : @luna.Node[Unit, String],
+  footer : @luna.Node[Unit, String]?,
+) -> @luna.Node[Unit, String] {
   let base_children = [
     @luna.h("div", [("class", @luna.attr_static(@styles.panel_header()))], [
       @luna.text(config.title),

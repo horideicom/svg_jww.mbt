@@ -6,7 +6,7 @@
 pub fn render_menu_item(
   item : MenuItem,
   handlers : Array[(String, @luna.EventHandler[Unit])],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   match item.kind {
     Button => {
       let handler = find_handler(item.id, handlers)
@@ -62,7 +62,7 @@ pub fn render_menu_item(
 pub fn render_toolbar_menu(
   items : Array[MenuItem],
   handlers : Array[(String, @luna.EventHandler[Unit])],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [("class", @luna.attr_static(@styles.toolbar()))],

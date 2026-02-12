@@ -1,5 +1,5 @@
 import {
-  "mizchi/luna/luna/css",
+  "mizchi/luna/x/css",
 }
 
 options(

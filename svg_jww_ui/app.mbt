@@ -18,7 +18,7 @@ pub fn render_app(
   on_toggle_grid : @luna.EventHandler[Unit],
   on_toggle_ruler : @luna.EventHandler[Unit],
   on_toggle_print_area : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [
@@ -114,7 +114,7 @@ pub fn render_toolbar(
   on_toggle_grid : @luna.EventHandler[Unit],
   on_toggle_ruler : @luna.EventHandler[Unit],
   on_toggle_print_area : @luna.EventHandler[Unit],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   // Build handlers array
   let handlers = [
     ("zoom_in", on_zoom_in),
@@ -144,7 +144,7 @@ pub fn render_toolbar(
 /// Info panel showing document info (refactored to use panel component)
 pub fn render_info_panel(
   state_sig : @signal.Signal[AppState],
-) -> @luna.Node[Unit] {
+) -> @luna.Node[Unit, String] {
   let config = @panel.make_panel_config("Document Info")
   let content = @luna.h(
     "div",
@@ -367,7 +367,7 @@ pub fn render_info_panel(
 
 ///|
 /// Render a section header in the info panel
-fn render_section_header(title : String) -> @luna.Node[Unit] {
+fn render_section_header(title : String) -> @luna.Node[Unit, String] {
   @luna.h(
     "div",
     [

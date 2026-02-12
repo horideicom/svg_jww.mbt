@@ -1,4 +1,4 @@
 import {
-  "mizchi/luna/luna" @luna,
+  "mizchi/luna" @luna,
   "horideicom/svg_jww/svg_jww_ui/styles" @styles,
 }

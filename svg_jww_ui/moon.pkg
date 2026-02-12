@@ -1,13 +1,13 @@
 import {
-  "mizchi/luna/luna" @luna,
-  "mizchi/luna/luna/signal",
-  "mizchi/luna/luna/render" @render,
-  "mizchi/luna/luna/css",
+  "mizchi/luna" @luna,
+  "mizchi/signals" @signal,
+  "mizchi/luna/core/render" @render,
+  "mizchi/luna/x/css" @css,
   "mizchi/js/core" @js_core,
   "horideicom/svg_jww/svg_jww_ui/menu" @menu,
   "horideicom/svg_jww/svg_jww_ui/components" @panel,
   "horideicom/svg_jww/svg_jww_ui/styles" @styles,
-  "mizchi/luna/luna/dom",
+  "mizchi/luna/dom/client" @dom,
 }
 
 options(
