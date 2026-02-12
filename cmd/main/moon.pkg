@@ -1,0 +1,7 @@
+import {
+  "horideicom/svg_jww" @lib,
+}
+
+options(
+  "is-main": true,
+)

@@ -1,8 +1,9 @@
-{
-  "import": [
-    "mizchi/luna/luna/css"
-  ],
-  "link": {
+import {
+  "mizchi/luna/luna/css",
+}
+
+options(
+  link: {
     "js": {
       "exports": [
         "panel_container",
@@ -27,8 +28,8 @@
         "icon_button_grid",
         "icon_button_large",
         "control_row",
-        "scale_display"
-      ]
-    }
-  }
-}
+        "scale_display",
+      ],
+    },
+  },
+)

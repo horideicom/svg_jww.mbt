@@ -1,0 +1,11 @@
+import {
+  "horideicom/svg_jww" @lib,
+  "Yoorkin/ArgParser" @arg,
+  "moonbitlang/x/fs" @fs,
+  "moonbitlang/x/sys" @sys,
+  "moonbitlang/core/ref" @ref,
+}
+
+options(
+  "is-main": true,
+)

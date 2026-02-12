@@ -1,0 +1,8 @@
+import {
+  "horideicom/svg_jww/svg_jww_ui" @ui,
+  "mizchi/js",
+}
+
+options(
+  "is-main": true,
+)

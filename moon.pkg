@@ -1,0 +1,27 @@
+import {
+  "moonbitlang/core/math" @math,
+  "horideicom/jww_parser/core" @jww_parser_core,
+}
+
+import {
+  "moonbitlang/quickcheck" @quickcheck,
+} for "wbtest"
+
+warnings = "-6-9"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "jww_to_svg",
+        "jww_parse",
+        "ParsedDocument",
+        "Bounds",
+        "LayerInfo",
+        "EntityCounts",
+        "PrintSettings",
+      ],
+      "format": "esm",
+    },
+  },
+)
