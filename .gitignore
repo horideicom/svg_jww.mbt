@@ -8,3 +8,5 @@ dist/
 .env
 .githooks/
 examples/*.jww
+
+_build/
